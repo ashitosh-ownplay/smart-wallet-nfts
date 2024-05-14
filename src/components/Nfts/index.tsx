@@ -18,6 +18,9 @@ export interface IOwnedNfts {
 export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
   const [openTransfer, setOpenTransfer] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT>();
+  const [selectedContractAddrss, setSelectedContractAdress] =
+    useState<string>();
+
   const [tabValue, setTabValue] = useState("1");
 
   const tabsData = [
@@ -40,11 +43,16 @@ export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
   };
 
   const handleTransfer = useCallback(
-    (e: React.MouseEvent<HTMLElement>, nft: NFT) => {
+    (
+      e: React.MouseEvent<HTMLElement>,
+      nft: NFT,
+      contractAddress: string | undefined
+    ) => {
       e.preventDefault();
       e.stopPropagation();
       setSelectedNft(nft);
       setOpenTransfer(true);
+      setSelectedContractAdress(contractAddress);
     },
     []
   );
@@ -92,6 +100,7 @@ export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
           open={openTransfer}
           onClose={() => setOpenTransfer(false)}
           nftInfo={selectedNft}
+          contractAddress={selectedContractAddrss}
         />
       ) : null}
     </Container>

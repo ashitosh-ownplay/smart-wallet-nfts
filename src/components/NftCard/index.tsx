@@ -7,10 +7,19 @@ import { NFT } from "@thirdweb-dev/react";
 
 export interface INftCard {
   nftInfo: NFT;
-  handleTransfer: (e: React.MouseEvent<HTMLElement>, nft: NFT) => void;
+  contractAddress: string | undefined;
+  handleTransfer: (
+    e: React.MouseEvent<HTMLElement>,
+    nft: NFT,
+    contractAddress: string | undefined
+  ) => void;
 }
 
-export const NftCard = ({ nftInfo, handleTransfer }: INftCard) => {
+export const NftCard = ({
+  nftInfo,
+  handleTransfer,
+  contractAddress,
+}: INftCard) => {
   return (
     <>
       <Card sx={{ maxWidth: 345, borderRadius: 1, width: 300, height: 400 }}>
@@ -30,7 +39,7 @@ export const NftCard = ({ nftInfo, handleTransfer }: INftCard) => {
 
           <Button
             variant="contained"
-            onClick={(e) => handleTransfer(e, nftInfo)}
+            onClick={(e) => handleTransfer(e, nftInfo, contractAddress)}
           >
             Transfer
           </Button>

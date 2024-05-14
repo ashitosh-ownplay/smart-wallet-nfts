@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Divider,
   TextField,
+  Typography,
 } from "@mui/material";
 import {
   Wallet,
@@ -83,6 +84,12 @@ const HomePage = () => {
         error={error ? error?.length > 0 : false}
         helperText={error && error?.length > 0 ? "Invalid private key" : ""}
       />
+      {account?.address ? (
+        <Typography>
+          <b>Smart Account: </b>
+          {account?.address}
+        </Typography>
+      ) : null}
       <Button
         variant="contained"
         disabled={!privateKey || loading}

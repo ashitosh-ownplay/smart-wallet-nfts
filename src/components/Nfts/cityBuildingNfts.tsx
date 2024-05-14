@@ -7,7 +7,11 @@ import NftCard from "../NftCard";
 type CityBuildingNftsProps = {
   wallet: Wallet | undefined;
   account: Account | undefined;
-  handleTransfer: (e: React.MouseEvent<HTMLElement>, nft: NFT) => void;
+  handleTransfer: (
+    e: React.MouseEvent<HTMLElement>,
+    nft: NFT,
+    contractAddress: string | undefined
+  ) => void;
 };
 
 export const CityBuildingNfts = ({
@@ -37,7 +41,12 @@ export const CityBuildingNfts = ({
     >
       {data?.map((nft, key) => {
         return (
-          <NftCard key={key} nftInfo={nft} handleTransfer={handleTransfer} />
+          <NftCard
+            key={key}
+            nftInfo={nft}
+            handleTransfer={handleTransfer}
+            contractAddress={cityNftContract?.contract?.getAddress()}
+          />
         );
       })}
     </Box>
