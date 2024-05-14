@@ -101,6 +101,8 @@ export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
           onClose={() => setOpenTransfer(false)}
           nftInfo={selectedNft}
           contractAddress={selectedContractAddrss}
+          account={accuont}
+          wallet={wallet}
         />
       ) : null}
     </Container>

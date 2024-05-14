@@ -1,9 +1,29 @@
-import { Box, Button, Modal, TextField, Typography } from "@mui/material";
-import { NFT, useContract, useTransferNFT } from "@thirdweb-dev/react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { NFT } from "@thirdweb-dev/react";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
-import { isAddress } from "thirdweb";
+import {
+  ThirdwebContract,
+  getContract,
+  isAddress,
+  prepareContractCall,
+  sendTransaction,
+  waitForReceipt,
+} from "thirdweb";
+import { Account, Wallet } from "thirdweb/wallets";
+import { chainId, chains } from "../../configs";
+import { client } from "../../configs/client";
 
 type TransferModalProps = {
+  account: Account | undefined;
+  wallet: Wallet | undefined;
   nftInfo: NFT | undefined;
   open: boolean;
   contractAddress: string | undefined;
@@ -11,22 +31,89 @@ type TransferModalProps = {
 };
 
 export const TransferModal = ({
+  account,
+  wallet,
   open,
   onClose,
   nftInfo,
   contractAddress,
 }: TransferModalProps) => {
   const [walletAddress, setWalletAddress] = useState<string>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [contract, setContract] = useState<ThirdwebContract>();
 
-  const { contract } = useContract(contractAddress);
+  useMemo(() => {
+    if (!client || !contractAddress) return;
 
-  const {
-    mutateAsync: transferNFT,
-    isLoading,
-    error,
-  } = useTransferNFT(contract);
+    const contract = getContract({
+      client,
+      chain: chains[chainId],
+      address: contractAddress,
+    });
 
-  const tranferNft = useCallback(() => {}, []);
+    setContract(contract);
+  }, [contractAddress]);
+
+  const tranferNft = useCallback(async () => {
+    try {
+      if (!walletAddress || !account || !contract) return;
+      setLoading(true);
+      if (nftInfo?.type === "ERC1155") {
+        const transaction = prepareContractCall({
+          contract,
+          // Pass the method signature that you want to call
+          method:
+            "function safeBatchTransferFrom(address from, address to, uint256[] ids, uint256[] amounts, bytes data)",
+          // and the params for that method
+          // Their types are automatically inferred based on the method signature
+          params: [
+            account?.address,
+            walletAddress,
+            [BigInt(nftInfo?.metadata?.id)],
+            [BigInt(1)],
+            "0x",
+          ],
+        });
+
+        const transactionResult = await sendTransaction({
+          transaction,
+          account,
+        });
+
+        const receipt = await waitForReceipt(transactionResult);
+
+        console.log("receipt: ", receipt);
+        setLoading(false);
+      } else if (nftInfo?.type === "ERC721") {
+        const transaction = prepareContractCall({
+          contract,
+          // Pass the method signature that you want to call
+          method:
+            "function safeTransferFrom(address from, address to, uint256 tokenId)",
+          // and the params for that method
+          // Their types are automatically inferred based on the method signature
+          params: [
+            account?.address,
+            walletAddress,
+            BigInt(nftInfo?.metadata?.id),
+          ],
+        });
+
+        const transactionResult = await sendTransaction({
+          transaction,
+          account,
+        });
+
+        const receipt = await waitForReceipt(transactionResult);
+
+        console.log("receipt: ", receipt);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }, [account, contract, nftInfo?.metadata?.id, nftInfo?.type, walletAddress]);
 
   const isValidAddress = useMemo(() => {
     if (!walletAddress) return false;
@@ -96,9 +183,10 @@ export const TransferModal = ({
 
         <Button
           variant="contained"
-          disabled={!walletAddress || !isValidAddress}
+          disabled={!walletAddress || !isValidAddress || loading}
           onClick={tranferNft}
         >
+          {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
           Transfer
         </Button>
         <Button variant="text" onClick={onClose}>
