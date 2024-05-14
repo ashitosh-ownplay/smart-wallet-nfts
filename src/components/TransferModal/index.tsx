@@ -1,11 +1,12 @@
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
-import { NFT } from "@thirdweb-dev/react";
+import { NFT, useContract, useTransferNFT } from "@thirdweb-dev/react";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { isAddress } from "thirdweb";
 
 type TransferModalProps = {
   nftInfo: NFT | undefined;
   open: boolean;
+  contractAddress: string | undefined;
   onClose: () => void;
 };
 
@@ -13,8 +14,17 @@ export const TransferModal = ({
   open,
   onClose,
   nftInfo,
+  contractAddress,
 }: TransferModalProps) => {
   const [walletAddress, setWalletAddress] = useState<string>();
+
+  const { contract } = useContract(contractAddress);
+
+  const {
+    mutateAsync: transferNFT,
+    isLoading,
+    error,
+  } = useTransferNFT(contract);
 
   const tranferNft = useCallback(() => {}, []);
 
@@ -83,6 +93,7 @@ export const TransferModal = ({
           }
           sx={{ borderColor: isValidAddress ? "green" : "" }}
         />
+
         <Button
           variant="contained"
           disabled={!walletAddress || !isValidAddress}

@@ -1,3 +1,23 @@
+import {
+  Chain,
+  anvil,
+  arbitrum,
+  arbitrumNova,
+  arbitrumSepolia,
+  avalanche,
+  avalancheFuji,
+  base,
+  baseSepolia,
+  ethereum,
+  optimism,
+  optimismSepolia,
+  polygon,
+  polygonAmoy,
+  sepolia,
+  zora,
+  zoraSepolia,
+} from "thirdweb/chains";
+
 export const chainId = import.meta.env.VITE_CHAIN_ID || "sepolia";
 
 export const cityBuildingsNFTAddress: Record<string, string> = {
@@ -24,3 +44,32 @@ export const giftPackageNFTAddress: Record<string, string> = {
   base: "",
   baseSepolia: "0x15a1fa39a4A24940625052aAcb1A0617B4AEbA86",
 };
+
+export const smartWalletFactory: Record<string, string> = {
+  polgonAmoy: "",
+  sepolia: "0x21187414d973891032AdfD52e8808adA893dB60b", //"0xB3265d462a79b41279B012f9C9Cdd227b16CFfF9",
+  arbitrumNova: "0x3f743c7417E1db677710371f4fd193c10322F666",
+  base: "0x3f743c7417E1db677710371f4fd193c10322F666",
+  baseSepolia: "0x3f743c7417E1db677710371f4fd193c10322F666",
+};
+
+export const chains: Record<string, Chain> = {
+  anvil: anvil,
+  arbitrumNova: arbitrumNova,
+  arbitrumSepolia: arbitrumSepolia,
+  arbitrum: arbitrum,
+  avalancheFuji: avalancheFuji,
+  avalanche: avalanche,
+  baseSepolia: baseSepolia,
+  base: base,
+  ethereum: ethereum,
+  optimismSepolia: optimismSepolia,
+  optimism: optimism,
+  polgonAmoy: polygonAmoy,
+  polygon: polygon,
+  sepolia: sepolia,
+  zoraSepolia: zoraSepolia,
+  zora: zora,
+};
+
+export const thirdWebClientId = import.meta.env.VITE_TW_CLIENT_ID;

@@ -1,15 +1,65 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeEvent, useCallback, useState } from "react";
 import OwnedNfts from "../components/Nfts";
-import { Box, Button, Divider, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  TextField,
+} from "@mui/material";
+import {
+  Wallet,
+  Account,
+  smartWallet,
+  privateKeyToAccount,
+} from "thirdweb/wallets";
+import { chainId, chains, smartWalletFactory } from "../configs";
+import { client } from "../configs/client";
 
 const HomePage = () => {
   const [privateKey, setPrivateKey] = useState<string>();
+  const [error, setError] = useState<string>();
+
+  const [account, setSmartAccount] = useState<Account>();
+  const [wallet, setSmartWallet] = useState<Wallet>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onPkChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setPrivateKey(e.target.value);
   }, []);
 
-  const handleFetchNft = useCallback(() => {}, []);
+  const handleFetchNft = useCallback(async () => {
+    try {
+      if (!privateKey) return;
+      setLoading(true);
+      const pkWallet = privateKeyToAccount({
+        client: client,
+        privateKey: String(privateKey),
+      });
+
+      const wallet = smartWallet({
+        factoryAddress: smartWalletFactory[chainId],
+        chain: chains[chainId],
+        gasless: false,
+      });
+
+      const smartAccount = await wallet.connect({
+        personalAccount: pkWallet,
+        client: client,
+      });
+
+      console.log("smartAccount: ", smartAccount);
+
+      setSmartAccount(smartAccount);
+      setSmartWallet(wallet);
+      setLoading(false);
+    } catch (error: any) {
+      console.log(error);
+      setLoading(false);
+      setError(error);
+    }
+  }, [privateKey]);
 
   return (
     <Box
@@ -19,6 +69,7 @@ const HomePage = () => {
         justifyContent: "center",
         alignItems: "center",
         gap: "16px",
+        width: "100% !important",
       }}
     >
       <TextField
@@ -28,19 +79,22 @@ const HomePage = () => {
         onChange={onPkChange}
         label="Private key"
         placeholder="Enter smart wallet private key"
-        style={{ width: "500px", height: "48px" }}
+        style={{ width: "600px", height: "48px" }}
+        error={error ? error?.length > 0 : false}
+        helperText={error && error?.length > 0 ? "Invalid private key" : ""}
       />
       <Button
         variant="contained"
-        disabled={!privateKey}
+        disabled={!privateKey || loading}
         onClick={handleFetchNft}
         style={{ width: "fit-content", height: "48px" }}
       >
-        Fetch Nfts
+        {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+        Connect To Smart Wallet
       </Button>
 
-      <Divider sx={{ width: "80%" }} />
-      <OwnedNfts />
+      <Divider sx={{ width: "100%" }} />
+      <OwnedNfts accuont={account} wallet={wallet} />
     </Box>
   );
 };
