@@ -101,7 +101,7 @@ const HomePage = () => {
       </Button>
 
       <Divider sx={{ width: "100%" }} />
-      <OwnedNfts accuont={account} wallet={wallet} />
+      <OwnedNfts account={account} wallet={wallet} />
     </Box>
   );
 };

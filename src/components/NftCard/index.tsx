@@ -33,9 +33,20 @@ export const NftCard = ({
           <Typography gutterBottom variant="h5" component="div">
             {nftInfo?.metadata?.name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {nftInfo?.metadata?.description}
-          </Typography>
+
+          {nftInfo?.type === "ERC1155" ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              textAlign="start"
+            >
+              <b>Token Quantity: </b> {nftInfo?.quantityOwned}
+            </Typography>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              {nftInfo?.metadata?.description}
+            </Typography>
+          )}
 
           <Button
             variant="contained"

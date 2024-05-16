@@ -1,27 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Box, CircularProgress, Container, Tab } from "@mui/material";
-import { NFT } from "@thirdweb-dev/react";
-import { Suspense, lazy, useCallback, useState } from "react";
+import { Box, Container, Tab } from "@mui/material";
+import { NFT, useContract, useOwnedNFTs } from "@thirdweb-dev/react";
+import { useCallback, useState } from "react";
 import { Account, Wallet } from "thirdweb/wallets";
+import {
+  chainId,
+  cityBuildingsNFTAddress,
+  giftPackageNFTAddress,
+  packagesNFTAddress,
+} from "../../configs";
 import TransferModal from "../TransferModal";
-
-const CityBuildingNfts = lazy(() => import("./cityBuildingNfts"));
-const GiftPackagesNFT = lazy(() => import("./giftPackagesNft"));
-const PackagesNFT = lazy(() => import("./packagesNft"));
+import NftsList from "./nftsList";
 
 export interface IOwnedNfts {
   wallet: Wallet | undefined;
-  accuont: Account | undefined;
+  account: Account | undefined;
 }
 
-export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
+export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
   const [openTransfer, setOpenTransfer] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT>();
+  const [tabValue, setTabValue] = useState("1");
   const [selectedContractAddrss, setSelectedContractAdress] =
     useState<string>();
 
-  const [tabValue, setTabValue] = useState("1");
+  const cityNftContract = useContract(cityBuildingsNFTAddress[chainId]);
+  const packagesNftContract = useContract(packagesNFTAddress[chainId]);
+  const giftPackagesNFTContract = useContract(giftPackageNFTAddress[chainId]);
+
+  const { data: cityNfts, isFetching: isCityNftFetching } = useOwnedNFTs(
+    cityNftContract?.contract,
+    account?.address
+  );
+
+  const { data: giftPackageNfts, isFetching: isGiftPackageFetching } =
+    useOwnedNFTs(giftPackagesNFTContract?.contract, account?.address || "");
+
+  const { data: packageNFts, isFetching: isPackageNftFetching } = useOwnedNFTs(
+    packagesNftContract?.contract,
+    account?.address
+  );
 
   const tabsData = [
     {
@@ -68,31 +87,34 @@ export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
           </TabList>
         </Box>
         <TabPanel value="1">
-          <Suspense fallback={<CircularProgress size={40} />}>
-            <CityBuildingNfts
-              wallet={wallet}
-              account={accuont}
-              handleTransfer={handleTransfer}
-            />
-          </Suspense>
+          <NftsList
+            contractAddress={cityNftContract?.contract?.getAddress()}
+            nfts={cityNfts}
+            wallet={wallet}
+            account={account}
+            handleTransfer={handleTransfer}
+            isFetching={isCityNftFetching}
+          />
         </TabPanel>
         <TabPanel value="2">
-          <Suspense fallback={<CircularProgress size={40} />}>
-            <PackagesNFT
-              wallet={wallet}
-              account={accuont}
-              handleTransfer={handleTransfer}
-            />
-          </Suspense>
+          <NftsList
+            contractAddress={packagesNftContract?.contract?.getAddress()}
+            nfts={packageNFts}
+            wallet={wallet}
+            account={account}
+            handleTransfer={handleTransfer}
+            isFetching={isPackageNftFetching}
+          />
         </TabPanel>
         <TabPanel value="3">
-          <Suspense fallback={<CircularProgress size={40} />}>
-            <GiftPackagesNFT
-              wallet={wallet}
-              account={accuont}
-              handleTransfer={handleTransfer}
-            />
-          </Suspense>
+          <NftsList
+            contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
+            nfts={giftPackageNfts}
+            wallet={wallet}
+            account={account}
+            handleTransfer={handleTransfer}
+            isFetching={isGiftPackageFetching}
+          />
         </TabPanel>
       </TabContext>
       {openTransfer ? (
@@ -101,7 +123,7 @@ export const OwnedNfts = ({ wallet, accuont }: IOwnedNfts) => {
           onClose={() => setOpenTransfer(false)}
           nftInfo={selectedNft}
           contractAddress={selectedContractAddrss}
-          account={accuont}
+          account={account}
           wallet={wallet}
         />
       ) : null}

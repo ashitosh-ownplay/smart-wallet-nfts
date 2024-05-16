@@ -1,10 +1,12 @@
-import { NFT, useContract, useOwnedNFTs } from "@thirdweb-dev/react";
-import { Account, Wallet } from "thirdweb/wallets";
-import { chainId, cityBuildingsNFTAddress } from "../../configs";
 import { Box, CircularProgress } from "@mui/material";
+import { NFT } from "@thirdweb-dev/react";
+import { Account, Wallet } from "thirdweb/wallets";
 import NftCard from "../NftCard";
 
-type CityBuildingNftsProps = {
+type NftsListProps = {
+  nfts: NFT[] | undefined;
+  isFetching: boolean;
+  contractAddress: string | undefined;
   wallet: Wallet | undefined;
   account: Account | undefined;
   handleTransfer: (
@@ -14,18 +16,14 @@ type CityBuildingNftsProps = {
   ) => void;
 };
 
-export const CityBuildingNfts = ({
+export const NftsList = ({
+  nfts,
+  isFetching,
+  contractAddress,
   wallet,
   account,
   handleTransfer,
-}: CityBuildingNftsProps) => {
-  const cityNftContract = useContract(cityBuildingsNFTAddress[chainId]);
-
-  const { data, isFetching } = useOwnedNFTs(
-    cityNftContract?.contract,
-    account?.address
-  );
-
+}: NftsListProps) => {
   return isFetching ? (
     <CircularProgress size={40} />
   ) : (
@@ -39,13 +37,13 @@ export const CityBuildingNfts = ({
         gap: 4,
       }}
     >
-      {data?.map((nft, key) => {
+      {nfts?.map((nft, key) => {
         return (
           <NftCard
             key={key}
             nftInfo={nft}
             handleTransfer={handleTransfer}
-            contractAddress={cityNftContract?.contract?.getAddress()}
+            contractAddress={contractAddress}
           />
         );
       })}
@@ -53,4 +51,4 @@ export const CityBuildingNfts = ({
   );
 };
 
-export default CityBuildingNfts;
+export default NftsList;
