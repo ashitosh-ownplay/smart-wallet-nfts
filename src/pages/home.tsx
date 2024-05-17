@@ -1,20 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeEvent, useCallback, useState } from "react";
-import OwnedNfts from "../components/Nfts";
 import {
   Box,
   Button,
   CircularProgress,
-  Divider,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
+import { ChangeEvent, useCallback, useState } from "react";
 import {
-  Wallet,
   Account,
-  smartWallet,
+  Wallet,
   privateKeyToAccount,
+  smartWallet,
 } from "thirdweb/wallets";
+import OwnedNfts from "../components/Nfts";
 import { chainId, chains, smartWalletFactory } from "../configs";
 import { client } from "../configs/client";
 
