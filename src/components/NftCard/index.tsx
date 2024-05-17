@@ -50,6 +50,7 @@ export const NftCard = ({
 
           <Button
             variant="contained"
+            disabled={nftInfo.type === "ERC1155"}
             onClick={(e) => handleTransfer(e, nftInfo, contractAddress)}
           >
             Transfer

@@ -30,6 +30,12 @@ const HomePage = () => {
     setPrivateKey(e.target.value);
   }, []);
 
+  const handleDisconnect = useCallback(() => {
+    wallet?.disconnect();
+    setSmartWallet(undefined);
+    setSmartAccount(undefined);
+  }, [wallet]);
+
   const handleFetchNft = useCallback(async () => {
     try {
       if (!privateKey) return;
@@ -80,7 +86,12 @@ const HomePage = () => {
         onChange={onPkChange}
         label="Private key"
         placeholder="Enter smart wallet private key"
-        style={{ width: "600px", height: "48px" }}
+        sx={{
+          width: {
+            sm: "564px",
+            xs: "100%",
+          },
+        }}
         error={error ? error?.length > 0 : false}
         helperText={error && error?.length > 0 ? "Invalid private key" : ""}
       />
@@ -90,17 +101,33 @@ const HomePage = () => {
           {account?.address}
         </Typography>
       ) : null}
-      <Button
-        variant="contained"
-        disabled={!privateKey || loading}
-        onClick={handleFetchNft}
-        style={{ width: "fit-content", height: "48px" }}
-      >
-        {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-        Connect To Smart Wallet
-      </Button>
 
-      <Divider sx={{ width: "100%" }} />
+      {!account?.address ? (
+        <Button
+          variant="contained"
+          disabled={!privateKey || loading}
+          onClick={handleFetchNft}
+          style={{ width: "fit-content", height: "48px" }}
+        >
+          {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+          Connect To Smart Wallet
+        </Button>
+      ) : (
+        <Button
+          variant="contained"
+          onClick={handleDisconnect}
+          style={{
+            width: "fit-content",
+            height: "48px",
+            backgroundColor: "red",
+          }}
+        >
+          {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+          Disconnect Smart Wallet
+        </Button>
+      )}
+
+      {/* <Divider sx={{ width: "100%" }} /> */}
       <OwnedNfts account={account} wallet={wallet} />
     </Box>
   );

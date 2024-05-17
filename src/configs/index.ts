@@ -20,6 +20,14 @@ import {
 
 export const chainId = import.meta.env.VITE_CHAIN_ID || "sepolia";
 
+export const usdcAddress: Record<string, string> = {
+  polgonAmoy: "",
+  sepolia: "0x14196F08a4Fa0B66B7331bC40dd6bCd8A1dEeA9F",
+  arbitrumNova: "0x750ba8b76187092B0D1E87E28daaf484d1b5273b",
+  base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  baseSepolia: "0x14196F08a4Fa0B66B7331bC40dd6bCd8A1dEeA9F",
+};
+
 export const cityBuildingsNFTAddress: Record<string, string> = {
   polgonAmoy: "",
   sepolia: "0xbe2290df49503844B851Fb31694fD546b2667dD3", // non-burnable

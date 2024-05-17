@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -17,10 +18,12 @@ import {
   isAddress,
   prepareContractCall,
   sendAndConfirmTransaction,
+  toWei,
 } from "thirdweb";
 import { Account, Wallet } from "thirdweb/wallets";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
+import usdc from "../../assets/usdc.svg";
 
 type TransferModalProps = {
   account: Account | undefined;
@@ -28,6 +31,8 @@ type TransferModalProps = {
   nftInfo: NFT | undefined;
   open: boolean;
   contractAddress: string | undefined;
+  isERC20TokenTransfer?: boolean;
+  usdcBalance?: number | undefined;
   onClose: () => void;
 };
 
@@ -38,11 +43,14 @@ export const TransferModal = ({
   onClose,
   nftInfo,
   contractAddress,
+  isERC20TokenTransfer,
+  usdcBalance,
 }: TransferModalProps) => {
   const [walletAddress, setWalletAddress] = useState<string>();
   const [tokenQuantity, setTokenQuantity] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [contract, setContract] = useState<ThirdwebContract>();
+  const [tokenAmount, setTokenAmount] = useState<string>();
 
   useMemo(() => {
     if (!client || !contractAddress) return;
@@ -111,6 +119,26 @@ export const TransferModal = ({
         console.log("receipt: ", transactionResult);
         setLoading(false);
         onClose();
+      } else if (isERC20TokenTransfer) {
+        const transaction = prepareContractCall({
+          contract,
+          // Pass the method signature that you want to call
+          method: "function transfer(address to, uint256 value)",
+          // and the params for that method
+          // Their types are automatically inferred based on the method signature
+          params: [walletAddress, toWei(String(tokenAmount))],
+        });
+
+        const transactionResult = await sendAndConfirmTransaction({
+          transaction,
+          account,
+        });
+
+        // const receipt = await waitForReceipt(transactionResult);
+
+        console.log("receipt: ", transactionResult);
+        setLoading(false);
+        onClose();
       }
     } catch (error) {
       console.log(error);
@@ -119,9 +147,11 @@ export const TransferModal = ({
   }, [
     account,
     contract,
+    isERC20TokenTransfer,
     nftInfo?.metadata?.id,
     nftInfo?.type,
     onClose,
+    tokenAmount,
     tokenQuantity,
     walletAddress,
   ]);
@@ -142,7 +172,10 @@ export const TransferModal = ({
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 464,
+          width: {
+            sm: "464px",
+            xs: "80%",
+          },
           height: "fit-content",
           boxShadow: 24,
           borderRadius: 2,
@@ -159,10 +192,11 @@ export const TransferModal = ({
           borderRadius={2}
           p={4}
           gap={2}
+          boxShadow={24}
         >
           <Box
             component="img"
-            src={nftInfo?.metadata?.image || ""}
+            src={isERC20TokenTransfer ? usdc : nftInfo?.metadata?.image || ""}
             width="100%"
             height={350}
             alt="nft-image"
@@ -237,13 +271,41 @@ export const TransferModal = ({
             </Stack>
           ) : null}
 
+          {isERC20TokenTransfer ? (
+            <TextField
+              fullWidth
+              label="Amount"
+              value={tokenAmount}
+              variant="outlined"
+              placeholder="Enter Amount"
+              type="number"
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                setTokenAmount(e.target.value.replace(/^0+/, ""));
+              }}
+              InputProps={{
+                inputProps: { min: 0 },
+                endAdornment: <Avatar src={usdc} alt="usdc" />,
+              }}
+              error={Number(tokenAmount) > Number(usdcBalance)}
+              helperText={
+                Number(tokenAmount) > Number(usdcBalance)
+                  ? "Token amount exceeds balance"
+                  : ""
+              }
+            />
+          ) : null}
+
           <Button
             variant="contained"
             disabled={
               !walletAddress ||
               !isValidAddress ||
               loading ||
-              nftInfo?.type === "ERC1155"
+              isERC20TokenTransfer
+                ? Number(tokenAmount) == 0 ||
+                  tokenAmount == undefined ||
+                  Number(tokenAmount) > Number(usdcBalance)
+                : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
                 : false
             }
