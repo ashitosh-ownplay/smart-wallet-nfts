@@ -4,7 +4,7 @@ import {
   Button,
   CircularProgress,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 import { ChangeEvent, useCallback, useState } from "react";
 import {
@@ -127,7 +127,7 @@ const HomePage = () => {
       )}
 
       {/* <Divider sx={{ width: "100%" }} /> */}
-      <OwnedNfts account={account} wallet={wallet} />
+      <OwnedNfts account={account} />
     </Box>
   );
 };

@@ -8,7 +8,7 @@ import {
   useTokenBalance,
 } from "@thirdweb-dev/react";
 import { useCallback, useState } from "react";
-import { Account, Wallet } from "thirdweb/wallets";
+import { Account } from "thirdweb/wallets";
 import {
   chainId,
   cityBuildingsNFTAddress,
@@ -20,11 +20,10 @@ import TransferModal from "../TransferModal";
 import NftsList from "./nftsList";
 
 export interface IOwnedNfts {
-  wallet: Wallet | undefined;
   account: Account | undefined;
 }
 
-export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
+export const OwnedNfts = ({ account }: IOwnedNfts) => {
   const [openTransfer, setOpenTransfer] = useState<boolean>(false);
   const [selectedNft, setSelectedNft] = useState<NFT>();
   const [tabValue, setTabValue] = useState("1");
@@ -38,11 +37,10 @@ export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
   const packagesNftContract = useContract(packagesNFTAddress[chainId]);
   const giftPackagesNFTContract = useContract(giftPackageNFTAddress[chainId]);
 
-  const {
-    data: usdcBalance,
-    isLoading: isUsdcBalanceLoading,
-    error: errprInUSDCBal,
-  } = useTokenBalance(usdcContract.contract, account?.address);
+  const { data: usdcBalance } = useTokenBalance(
+    usdcContract.contract,
+    account?.address
+  );
 
   const { data: cityNfts, isFetching: isCityNftFetching } = useOwnedNFTs(
     cityNftContract?.contract,
@@ -72,7 +70,7 @@ export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
     },
   ];
 
-  const handleTabChange = (event: any, newValue: any) => {
+  const handleTabChange = (_event: any, newValue: any) => {
     setTabValue(newValue);
   };
 
@@ -147,8 +145,6 @@ export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
           <NftsList
             contractAddress={cityNftContract?.contract?.getAddress()}
             nfts={cityNfts}
-            wallet={wallet}
-            account={account}
             handleTransfer={handleTransfer}
             isFetching={isCityNftFetching}
           />
@@ -157,8 +153,6 @@ export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
           <NftsList
             contractAddress={packagesNftContract?.contract?.getAddress()}
             nfts={packageNFts}
-            wallet={wallet}
-            account={account}
             handleTransfer={handleTransfer}
             isFetching={isPackageNftFetching}
           />
@@ -167,8 +161,6 @@ export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
           <NftsList
             contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
             nfts={giftPackageNfts}
-            wallet={wallet}
-            account={account}
             handleTransfer={handleTransfer}
             isFetching={isGiftPackageFetching}
           />
@@ -181,7 +173,6 @@ export const OwnedNfts = ({ wallet, account }: IOwnedNfts) => {
           nftInfo={selectedNft}
           contractAddress={selectedContractAddrss}
           account={account}
-          wallet={wallet}
           isERC20TokenTransfer={isERC20TokenTransfer}
           usdcBalance={usdcBalance?.value?.toNumber()}
         />
