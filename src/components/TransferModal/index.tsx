@@ -20,14 +20,13 @@ import {
   sendAndConfirmTransaction,
   toWei,
 } from "thirdweb";
-import { Account, Wallet } from "thirdweb/wallets";
+import { Account } from "thirdweb/wallets";
+import usdc from "../../assets/usdc.svg";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
-import usdc from "../../assets/usdc.svg";
 
 type TransferModalProps = {
   account: Account | undefined;
-  wallet: Wallet | undefined;
   nftInfo: NFT | undefined;
   open: boolean;
   contractAddress: string | undefined;
@@ -38,7 +37,6 @@ type TransferModalProps = {
 
 export const TransferModal = ({
   account,
-  wallet,
   open,
   onClose,
   nftInfo,

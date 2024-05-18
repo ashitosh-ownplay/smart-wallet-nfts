@@ -1,14 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Box, CircularProgress } from "@mui/material";
 import { NFT } from "@thirdweb-dev/react";
-import { Account, Wallet } from "thirdweb/wallets";
 import NftCard from "../NftCard";
 
 type NftsListProps = {
   nfts: NFT[] | undefined;
   isFetching: boolean;
   contractAddress: string | undefined;
-  wallet: Wallet | undefined;
-  account: Account | undefined;
   handleTransfer: (
     e: React.MouseEvent<HTMLElement>,
     nft: NFT,
@@ -20,8 +18,6 @@ export const NftsList = ({
   nfts,
   isFetching,
   contractAddress,
-  wallet,
-  account,
   handleTransfer,
 }: NftsListProps) => {
   return isFetching ? (
