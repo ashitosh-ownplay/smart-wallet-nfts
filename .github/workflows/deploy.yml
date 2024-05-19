@@ -17,6 +17,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
 
+      - name: Create .env file
+        run: |
+          echo "VITE_CHAIN_ID=${{ secrets.VITE_CHAIN_ID }}" >> .env
+          echo "VITE_TW_CLIENT_ID=${{ secrets.VITE_TW_CLIENT_ID }}" >> .env
+
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
 
@@ -34,6 +39,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    env:
+      VITE_CHAIN_ID: ${{ secrets.VITE_CHAIN_ID }}
+      VITE_TW_CLIENT_ID: ${{ secrets.VITE_TW_CLIENT_ID }}
 
     steps:
       - name: Download artifact
