@@ -1,6 +1,6 @@
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import "./App.css";
-import { chainId } from "./configs";
+import { chainId, thirdWebClientId } from "./configs";
 import HomePage from "./pages/home";
 import { Box, Snackbar, Typography } from "@mui/material";
 import {
@@ -14,7 +14,7 @@ function App() {
   return (
     <>
       <SnackbarContextProvider>
-        <ThirdwebProvider activeChain={chainId}>
+        <ThirdwebProvider activeChain={chainId} clientId={thirdWebClientId}>
           <Box
             display="flex"
             flexDirection="column"

@@ -8,8 +8,6 @@ if (!thirdWebClientId) {
   throw new Error("No TW client ID provided");
 }
 
-console.log("thirdWebClientId: ", thirdWebClientId);
-
 export const client = createThirdwebClient({
   clientId: thirdWebClientId,
 });
