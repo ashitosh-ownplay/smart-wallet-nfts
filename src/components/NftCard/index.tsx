@@ -5,6 +5,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { NFT } from "@thirdweb-dev/react";
 import NftPlaceholder from "../../assets/nft-placeholder.png";
+import { truncateStr } from "../../utils";
 
 export interface INftCard {
   nftInfo: NFT;
@@ -24,17 +25,23 @@ export const NftCard = ({
   console.log("nftInfo: ", nftInfo);
   return (
     <>
-      <Card sx={{ maxWidth: 345, borderRadius: 1, width: 300, height: 400 }}>
+      <Card
+        sx={{
+          maxWidth: 345,
+          borderRadius: 1,
+          width: 300,
+          height: "fit-content",
+        }}
+      >
         <CardMedia
           component="img"
           height="240"
           image={nftInfo?.metadata?.image || NftPlaceholder}
           alt="nft-image"
-          sx={{ objectFit: "scale-down" }}
         />
         <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Typography gutterBottom variant="h5" component="div">
-            {nftInfo?.metadata?.name || ""}
+            {truncateStr(nftInfo?.metadata?.name?.toString() || "", 20)}
           </Typography>
 
           {nftInfo?.type === "ERC1155" ? (
@@ -47,7 +54,7 @@ export const NftCard = ({
             </Typography>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              {nftInfo?.metadata?.description || ""}
+              {truncateStr(nftInfo?.metadata?.description || "", 50)}
             </Typography>
           )}
 
