@@ -166,14 +166,16 @@ export const TransferModal = ({
         open={open}
         onClose={onClose}
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
           width: {
             sm: "464px",
             xs: "80%",
           },
+          position: "fixed",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          margin: "auto",
           height: "fit-content",
           boxShadow: 24,
           borderRadius: 2,
@@ -185,8 +187,8 @@ export const TransferModal = ({
           justifyContent="center"
           alignItems="center"
           bgcolor="white"
-          width="100%"
-          height="100%"
+          // width="100%"
+          // height="100%"
           borderRadius={2}
           p={4}
           gap={2}

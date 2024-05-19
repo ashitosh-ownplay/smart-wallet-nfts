@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -6,7 +7,12 @@ import Typography from "@mui/material/Typography";
 import { NFT } from "@thirdweb-dev/react";
 import NftPlaceholder from "../../assets/nft-placeholder.png";
 import { truncateStr } from "../../utils";
-
+import { useEffect, useState } from "react";
+import { tokenUri } from "thirdweb/extensions/erc1155";
+import { getContract } from "thirdweb";
+import { client } from "../../configs/client";
+import { chainId, chains } from "../../configs";
+import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
 export interface INftCard {
   nftInfo: NFT;
   contractAddress: string | undefined;
@@ -23,6 +29,35 @@ export const NftCard = ({
   contractAddress,
 }: INftCard) => {
   console.log("nftInfo: ", nftInfo);
+
+  const [metadata, setMetadata] = useState<any>(undefined);
+
+  console.log("metadata: ", metadata);
+  useEffect(() => {
+    const getTokenMetadata = async () => {
+      const contract = getContract({
+        client: client,
+        address: contractAddress!,
+        chain: chains[chainId],
+      });
+
+      if (contract) {
+        const result = await tokenUri({
+          contract,
+          tokenId: BigInt(nftInfo?.metadata?.id),
+        });
+
+        const metadata = await (
+          await fetch(ipfsUrlToCfGateway(result as string))
+        ).json();
+
+        setMetadata(metadata);
+      }
+    };
+
+    getTokenMetadata();
+  }, [contractAddress, nftInfo?.metadata?.id, setMetadata]);
+
   return (
     <>
       <Card
