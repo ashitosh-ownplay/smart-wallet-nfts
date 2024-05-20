@@ -1,0 +1,1 @@
+import{i as t}from"./isValidSignature-DsS1SlVS.js";import{q as r,f3 as e}from"./index-CgdAJi-r.js";const s="0x1626ba7e";async function u(a){if(!r(a.signature))throw new Error("The signature must be a valid hex string.");return await t({contract:a.contract,hash:e(a.data),signature:a.signature})===s}export{u as checkContractWalletSignedTypedData};
