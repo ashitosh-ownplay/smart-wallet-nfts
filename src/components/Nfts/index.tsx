@@ -134,10 +134,13 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
         </Button>
       </Stack>
       <TabContext value={tabValue}>
-        <Box
-          sx={{ borderBottom: 1, borderColor: "divider", overflow: "scroll" }}
-        >
-          <TabList onChange={handleTabChange} aria-label="nfts tabs">
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <TabList
+            onChange={handleTabChange}
+            aria-label="nfts tabs"
+            scrollButtons="auto"
+            variant="scrollable"
+          >
             {tabsData?.map((tab) => {
               return <Tab key={tab.id} label={tab.label} value={tab.id} />;
             })}

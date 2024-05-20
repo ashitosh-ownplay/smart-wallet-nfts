@@ -5,6 +5,7 @@ import {
   CircularProgress,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { ChangeEvent, useCallback, useState } from "react";
 import {
@@ -16,6 +17,7 @@ import {
 import OwnedNfts from "../components/Nfts";
 import { chainId, chains, smartWalletFactory } from "../configs";
 import { client } from "../configs/client";
+import { truncateAddress } from "../utils";
 
 const HomePage = () => {
   const [privateKey, setPrivateKey] = useState<string>();
@@ -24,6 +26,8 @@ const HomePage = () => {
   const [account, setSmartAccount] = useState<Account>();
   const [wallet, setSmartWallet] = useState<Wallet>();
   const [loading, setLoading] = useState<boolean>(false);
+
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   const onPkChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setPrivateKey(e.target.value);
@@ -95,9 +99,14 @@ const HomePage = () => {
         helperText={error && error?.length > 0 ? "Invalid private key" : ""}
       />
       {account?.address ? (
-        <Typography>
+        <Typography
+          sx={{ cursor: "pointer" }}
+          onClick={() => {
+            navigator.clipboard.writeText(account?.address);
+          }}
+        >
           <b>Smart Account: </b>
-          {account?.address}
+          {isMobile ? truncateAddress(account?.address) : account?.address}
         </Typography>
       ) : null}
 
