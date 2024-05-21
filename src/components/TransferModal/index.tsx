@@ -31,7 +31,7 @@ type TransferModalProps = {
   open: boolean;
   contractAddress: string | undefined;
   isERC20TokenTransfer?: boolean;
-  usdcBalance?: number | undefined;
+  usdcBalance?: bigint | undefined;
   onClose: () => void;
 };
 
@@ -49,7 +49,6 @@ export const TransferModal = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [contract, setContract] = useState<ThirdwebContract>();
   const [tokenAmount, setTokenAmount] = useState<string>();
-
   useMemo(() => {
     if (!client || !contractAddress) return;
 
@@ -286,9 +285,15 @@ export const TransferModal = ({
                 inputProps: { min: 0 },
                 endAdornment: <Avatar src={usdc} alt="usdc" />,
               }}
-              error={Number(tokenAmount) > Number(usdcBalance)}
+              error={
+                usdcBalance && tokenAmount
+                  ? BigInt(String(tokenAmount)) > usdcBalance
+                  : false
+              }
               helperText={
-                Number(tokenAmount) > Number(usdcBalance)
+                usdcBalance &&
+                tokenAmount &&
+                BigInt(String(tokenAmount)) > usdcBalance
                   ? "Token amount exceeds balance"
                   : ""
               }
@@ -298,16 +303,18 @@ export const TransferModal = ({
           <Button
             variant="contained"
             disabled={
+              loading ||
               !walletAddress ||
               !isValidAddress ||
-              loading ||
-              isERC20TokenTransfer
+              (isERC20TokenTransfer
                 ? Number(tokenAmount) == 0 ||
                   tokenAmount == undefined ||
-                  Number(tokenAmount) > Number(usdcBalance)
+                  (usdcBalance && tokenAmount
+                    ? BigInt(String(tokenAmount)) > usdcBalance
+                    : true)
                 : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
-                : false
+                : false)
             }
             onClick={tranferNft}
             fullWidth
