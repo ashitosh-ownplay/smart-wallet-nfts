@@ -129,7 +129,11 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
             {usdcBalance?.value.toString() || 0} USDC
           </Typography>
         </Box>
-        <Button variant="contained" onClick={handleERC20Transfer}>
+        <Button
+          variant="contained"
+          onClick={handleERC20Transfer}
+          disabled={Number(usdcBalance?.value.toString()) <= 0}
+        >
           Transfer USDC
         </Button>
       </Stack>
@@ -179,7 +183,7 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
           contractAddress={selectedContractAddrss}
           account={account}
           isERC20TokenTransfer={isERC20TokenTransfer}
-          usdcBalance={usdcBalance?.value?.toNumber()}
+          usdcBalance={usdcBalance?.value?.toBigInt()}
         />
       ) : null}
     </Container>

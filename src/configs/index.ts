@@ -81,4 +81,3 @@ export const chains: Record<string, Chain> = {
 };
 
 export const thirdWebClientId = import.meta.env.VITE_TW_CLIENT_ID;
-console.log("thirdWebClientId: ", thirdWebClientId);
