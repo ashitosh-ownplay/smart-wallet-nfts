@@ -8,7 +8,7 @@ import { NFT } from "@thirdweb-dev/react";
 import NftPlaceholder from "../../assets/nft-placeholder.png";
 import { truncateStr } from "../../utils";
 import { useEffect, useState } from "react";
-import { tokenUri } from "thirdweb/extensions/erc1155";
+import { tokenURI } from "thirdweb/extensions/erc721";
 import { getContract } from "thirdweb";
 import { client } from "../../configs/client";
 import { chainId, chains } from "../../configs";
@@ -42,7 +42,7 @@ export const NftCard = ({
       });
 
       if (contract) {
-        const result = await tokenUri({
+        const result = await tokenURI({
           contract,
           tokenId: BigInt(nftInfo?.metadata?.id),
         });
