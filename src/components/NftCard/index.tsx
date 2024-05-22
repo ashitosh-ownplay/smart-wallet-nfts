@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@mui/material";
 import Card from "@mui/material/Card";
@@ -24,6 +25,13 @@ export interface INftCard {
   ) => void;
 }
 
+const gateways = [
+  "https://ipfs.io/ipfs/",
+  "https://gateway.pinata.cloud/ipfs/",
+  "https://dweb.link/ipfs/",
+  "https://cloudflare-ipfs.com/ipfs/",
+];
+
 export const NftCard = ({
   nftInfo,
   handleTransfer,
@@ -32,6 +40,10 @@ export const NftCard = ({
   console.log("nftInfo: ", nftInfo);
 
   const [metadata, setMetadata] = useState<any>(undefined);
+
+  const [imageSrc, setImageSrc] = useState("");
+  const [error, setError] = useState("");
+  const [gatewayIndex, setGatewayIndex] = useState(0);
 
   console.log("metadata: ", metadata);
   useEffect(() => {
@@ -65,6 +77,25 @@ export const NftCard = ({
     getTokenMetadata();
   }, [contractAddress, nftInfo?.metadata?.id, nftInfo?.type, setMetadata]);
 
+  useEffect(() => {
+    const fetchImage = () => {
+      const gatewayUrl = metadata?.image.replace(
+        "ipfs://",
+        gateways[gatewayIndex]
+      );
+      setImageSrc(gatewayUrl);
+    };
+
+    fetchImage();
+  }, [gatewayIndex, metadata?.image]);
+
+  const handleError = () => {
+    if (gatewayIndex < gateways.length - 1) {
+      setGatewayIndex(gatewayIndex + 1);
+    } else {
+      setError("Failed to load image from all gateways.");
+    }
+  };
   return (
     <>
       <Card
@@ -78,12 +109,16 @@ export const NftCard = ({
         <CardMedia
           component="img"
           height="240"
-          image={nftInfo?.metadata?.image || NftPlaceholder}
+          image={nftInfo?.metadata?.image || imageSrc || NftPlaceholder}
           alt="nft-image"
+          onError={handleError}
         />
         <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Typography gutterBottom variant="h5" component="div">
-            {truncateStr(nftInfo?.metadata?.name?.toString() || "", 20)}
+            {truncateStr(
+              metadata?.name || nftInfo?.metadata?.name?.toString() || "",
+              20
+            )}
           </Typography>
 
           {nftInfo?.type === "ERC1155" ? (
@@ -96,7 +131,10 @@ export const NftCard = ({
             </Typography>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              {truncateStr(nftInfo?.metadata?.description || "", 50)}
+              {truncateStr(
+                metadata?.description || nftInfo?.metadata?.description || "",
+                50
+              )}
             </Typography>
           )}
 
