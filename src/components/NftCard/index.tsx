@@ -5,14 +5,15 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { NFT } from "@thirdweb-dev/react";
-import NftPlaceholder from "../../assets/nft-placeholder.png";
-import { truncateStr } from "../../utils";
 import { useEffect, useState } from "react";
-import { tokenURI } from "thirdweb/extensions/erc721";
 import { getContract } from "thirdweb";
-import { client } from "../../configs/client";
+import { tokenUri } from "thirdweb/extensions/erc1155";
+import { tokenURI } from "thirdweb/extensions/erc721";
+import NftPlaceholder from "../../assets/nft-placeholder.png";
 import { chainId, chains } from "../../configs";
-import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
+import { client } from "../../configs/client";
+import { truncateStr } from "../../utils";
+
 export interface INftCard {
   nftInfo: NFT;
   contractAddress: string | undefined;
@@ -42,21 +43,27 @@ export const NftCard = ({
       });
 
       if (contract) {
-        const result = await tokenURI({
-          contract,
-          tokenId: BigInt(nftInfo?.metadata?.id),
-        });
+        let result;
+        if (nftInfo?.type === "ERC1155") {
+          result = await tokenUri({
+            contract,
+            tokenId: BigInt(nftInfo?.metadata?.id),
+          });
+        } else {
+          result = await tokenURI({
+            contract,
+            tokenId: BigInt(nftInfo?.metadata?.id),
+          });
+        }
 
-        const metadata = await (
-          await fetch(ipfsUrlToCfGateway(result as string))
-        ).json();
+        const metadata = await (await fetch(result as string)).json();
 
         setMetadata(metadata);
       }
     };
 
     getTokenMetadata();
-  }, [contractAddress, nftInfo?.metadata?.id, setMetadata]);
+  }, [contractAddress, nftInfo?.metadata?.id, nftInfo?.type, setMetadata]);
 
   return (
     <>
