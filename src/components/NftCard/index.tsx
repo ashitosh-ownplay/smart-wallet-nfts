@@ -42,7 +42,6 @@ export const NftCard = ({
   const [metadata, setMetadata] = useState<any>(undefined);
 
   const [imageSrc, setImageSrc] = useState("");
-  const [error, setError] = useState("");
   const [gatewayIndex, setGatewayIndex] = useState(0);
 
   console.log("metadata: ", metadata);
@@ -93,7 +92,7 @@ export const NftCard = ({
     if (gatewayIndex < gateways.length - 1) {
       setGatewayIndex(gatewayIndex + 1);
     } else {
-      setError("Failed to load image from all gateways.");
+      console.log("Failed to load image from all gateways.");
     }
   };
   return (
