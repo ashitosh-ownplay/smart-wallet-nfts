@@ -14,6 +14,7 @@ import NftPlaceholder from "../../assets/nft-placeholder.png";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
 import { truncateStr } from "../../utils";
+import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
 
 export interface INftCard {
   nftInfo: NFT;
@@ -66,8 +67,9 @@ export const NftCard = ({
             tokenId: BigInt(nftInfo?.metadata?.id),
           });
         }
-
-        const metadata = await (await fetch(result as string)).json();
+        const metadata = await (
+          await fetch(ipfsUrlToCfGateway(result as string))
+        ).json();
 
         setMetadata(metadata);
       }
