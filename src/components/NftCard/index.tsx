@@ -26,10 +26,10 @@ export interface INftCard {
 }
 
 const gateways = [
+  "https://cloudflare-ipfs.com/ipfs/",
   "https://ipfs.io/ipfs/",
   "https://gateway.pinata.cloud/ipfs/",
   "https://dweb.link/ipfs/",
-  "https://cloudflare-ipfs.com/ipfs/",
 ];
 
 export const NftCard = ({
