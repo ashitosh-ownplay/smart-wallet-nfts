@@ -1,0 +1,1 @@
+import{i as a}from"./isValidSignature-D7tJ7FAD.js";import{q as t}from"./index-DcGpi8Zt.js";import{h as e}from"./hashMessage-vbBwFI4j.js";const s="0x1626ba7e";async function g(r){if(!t(r.signature))throw new Error("The signature must be a valid hex string.");return await a({contract:r.contract,hash:e(r.message),signature:r.signature})===s}export{g as checkContractWalletSignature};
