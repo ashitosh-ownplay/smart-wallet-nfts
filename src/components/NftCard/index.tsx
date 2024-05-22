@@ -92,6 +92,7 @@ export const NftCard = ({
     if (gatewayIndex < gateways.length - 1) {
       setGatewayIndex(gatewayIndex + 1);
     } else {
+      setImageSrc(NftPlaceholder);
       console.log("Failed to load image from all gateways.");
     }
   };
