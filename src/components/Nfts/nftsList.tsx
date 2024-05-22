@@ -2,6 +2,7 @@
 import { Box, CircularProgress } from "@mui/material";
 import { NFT } from "@thirdweb-dev/react";
 import NftCard from "../NftCard";
+import { memo } from "react";
 
 type NftsListProps = {
   nfts: NFT[] | undefined;
@@ -14,37 +15,34 @@ type NftsListProps = {
   ) => void;
 };
 
-export const NftsList = ({
-  nfts,
-  isFetching,
-  contractAddress,
-  handleTransfer,
-}: NftsListProps) => {
-  return isFetching ? (
-    <CircularProgress size={40} />
-  ) : (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 4,
-      }}
-    >
-      {nfts?.map((nft, key) => {
-        return (
-          <NftCard
-            key={key}
-            nftInfo={nft}
-            handleTransfer={handleTransfer}
-            contractAddress={contractAddress}
-          />
-        );
-      })}
-    </Box>
-  );
-};
+export const NftsList = memo(
+  ({ nfts, isFetching, contractAddress, handleTransfer }: NftsListProps) => {
+    return isFetching ? (
+      <CircularProgress size={40} />
+    ) : (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 4,
+        }}
+      >
+        {nfts?.map((nft, key) => {
+          return (
+            <NftCard
+              key={key}
+              nftInfo={nft}
+              handleTransfer={handleTransfer}
+              contractAddress={contractAddress}
+            />
+          );
+        })}
+      </Box>
+    );
+  }
+);
 
 export default NftsList;
