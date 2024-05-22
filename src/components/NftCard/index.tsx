@@ -68,7 +68,11 @@ export const NftCard = ({
           });
         }
         const metadata = await (
-          await fetch(ipfsUrlToCfGateway(result as string))
+          await fetch(
+            nftInfo?.type === "ERC1155"
+              ? ipfsUrlToCfGateway(result as string)
+              : (result as string)
+          )
         ).json();
 
         setMetadata(metadata);
