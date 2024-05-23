@@ -55,7 +55,7 @@ export const giftPackageNFTAddress: Record<string, string> = {
 
 export const smartWalletFactory: Record<string, string> = {
   polgonAmoy: "",
-  sepolia: "0x21187414d973891032AdfD52e8808adA893dB60b", //"0xB3265d462a79b41279B012f9C9Cdd227b16CFfF9",
+  sepolia: "0xB3265d462a79b41279B012f9C9Cdd227b16CFfF9", // "0x21187414d973891032AdfD52e8808adA893dB60b",
   arbitrumNova: "0x3f743c7417E1db677710371f4fd193c10322F666",
   base: "0x3f743c7417E1db677710371f4fd193c10322F666",
   baseSepolia: "0x3f743c7417E1db677710371f4fd193c10322F666",

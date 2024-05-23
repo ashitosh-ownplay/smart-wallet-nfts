@@ -6,7 +6,7 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { NFT } from "@thirdweb-dev/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getContract } from "thirdweb";
 import { tokenUri } from "thirdweb/extensions/erc1155";
 import { tokenURI } from "thirdweb/extensions/erc721";
@@ -15,15 +15,13 @@ import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
 import { truncateStr } from "../../utils";
 import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
+import TransferModal from "../TransferModal";
+import { Account } from "thirdweb/wallets";
 
 export interface INftCard {
   nftInfo: NFT;
   contractAddress: string | undefined;
-  handleTransfer: (
-    e: React.MouseEvent<HTMLElement>,
-    nft: NFT,
-    contractAddress: string | undefined
-  ) => void;
+  account: Account | undefined;
 }
 
 const gateways = [
@@ -33,17 +31,25 @@ const gateways = [
   "https://dweb.link/ipfs/",
 ];
 
-export const NftCard = ({
-  nftInfo,
-  handleTransfer,
-  contractAddress,
-}: INftCard) => {
+export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
   console.log("nftInfo: ", nftInfo);
 
   const [metadata, setMetadata] = useState<any>(undefined);
+  const [openTransfer, setOpenTransfer] = useState<boolean>(false);
 
   const [imageSrc, setImageSrc] = useState("");
   const [gatewayIndex, setGatewayIndex] = useState(0);
+
+  const handleTransferModalClose = useCallback(() => {
+    setOpenTransfer(false);
+  }, []);
+
+  const handleTransfer = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setOpenTransfer(true);
+  }, []);
 
   console.log("metadata: ", metadata);
   useEffect(() => {
@@ -147,10 +153,22 @@ export const NftCard = ({
           <Button
             variant="contained"
             disabled={nftInfo.type === "ERC1155"}
-            onClick={(e) => handleTransfer(e, nftInfo, contractAddress)}
+            onClick={handleTransfer}
           >
             Transfer
           </Button>
+
+          {openTransfer ? (
+            <TransferModal
+              open={openTransfer}
+              onClose={handleTransferModalClose}
+              nftInfo={nftInfo}
+              contractAddress={contractAddress}
+              account={account}
+              isERC20TokenTransfer={false}
+              usdcBalance={undefined}
+            />
+          ) : null}
         </CardContent>
       </Card>
     </>
