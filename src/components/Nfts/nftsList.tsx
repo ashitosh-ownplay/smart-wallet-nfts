@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Box, CircularProgress } from "@mui/material";
-import { NFT } from "@thirdweb-dev/react";
 import NftCard from "../NftCard";
 import { memo } from "react";
 import { Account } from "thirdweb/wallets";
+import { NFTWithQuantity } from "../types";
 
 type NftsListProps = {
-  nfts: NFT[] | undefined;
+  nfts: NFTWithQuantity[] | undefined;
   isFetching: boolean;
   contractAddress: string | undefined;
   account: Account | undefined;

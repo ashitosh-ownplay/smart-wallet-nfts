@@ -5,21 +5,21 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { NFT } from "@thirdweb-dev/react";
 import { useCallback, useEffect, useState } from "react";
-import { getContract } from "thirdweb";
-import { tokenUri } from "thirdweb/extensions/erc1155";
-import { tokenURI } from "thirdweb/extensions/erc721";
-import NftPlaceholder from "../../assets/nft-placeholder.png";
-import { chainId, chains } from "../../configs";
-import { client } from "../../configs/client";
-import { truncateStr } from "../../utils";
-import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
-import TransferModal from "../TransferModal";
 import { Account } from "thirdweb/wallets";
+import NftPlaceholder from "../../assets/nft-placeholder.png";
+import { truncateStr } from "../../utils";
+import TransferModal from "../TransferModal";
+import { NFTWithQuantity } from "../types";
+import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
+import { tokenURI } from "thirdweb/extensions/erc721";
+import { tokenUri } from "thirdweb/extensions/erc1155";
+import { client } from "../../configs/client";
+import { chainId, chains } from "../../configs";
+import { getContract } from "thirdweb";
 
 export interface INftCard {
-  nftInfo: NFT;
+  nftInfo: NFTWithQuantity;
   contractAddress: string | undefined;
   account: Account | undefined;
 }
@@ -62,17 +62,19 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
 
       if (contract) {
         let result;
+
         if (nftInfo?.type === "ERC1155") {
           result = await tokenUri({
             contract,
-            tokenId: BigInt(nftInfo?.metadata?.id),
+            tokenId: nftInfo?.id,
           });
         } else {
           result = await tokenURI({
             contract,
-            tokenId: BigInt(nftInfo?.metadata?.id),
+            tokenId: nftInfo?.id,
           });
         }
+
         const metadata = await (
           await fetch(
             nftInfo?.type === "ERC1155"
@@ -85,8 +87,8 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
       }
     };
 
-    getTokenMetadata();
-  }, [contractAddress, nftInfo?.metadata?.id, nftInfo?.type, setMetadata]);
+    getTokenMetadata().catch((e) => console.log(e));
+  }, [contractAddress, nftInfo?.id, nftInfo?.type, setMetadata]);
 
   useEffect(() => {
     const fetchImage = () => {
@@ -139,7 +141,7 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
               color="text.secondary"
               textAlign="start"
             >
-              <b>Token Quantity: </b> {nftInfo?.quantityOwned || 0}
+              <b>Token Quantity: </b> {nftInfo?.supply?.toString() || 0}
             </Typography>
           ) : (
             <Typography variant="body2" color="text.secondary">
@@ -150,13 +152,11 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
             </Typography>
           )}
 
-          <Button
-            variant="contained"
-            disabled={nftInfo.type === "ERC1155"}
-            onClick={handleTransfer}
-          >
-            Transfer
-          </Button>
+          {nftInfo.type === "ERC1155" ? null : (
+            <Button variant="contained" onClick={handleTransfer}>
+              Transfer
+            </Button>
+          )}
 
           {openTransfer ? (
             <TransferModal

@@ -10,7 +10,6 @@ import {
   Typography,
   colors,
 } from "@mui/material";
-import { NFT } from "@thirdweb-dev/react";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import {
   ThirdwebContract,
@@ -18,21 +17,22 @@ import {
   isAddress,
   prepareContractCall,
   sendAndConfirmTransaction,
-  toWei,
+  toUnits,
 } from "thirdweb";
 import { Account } from "thirdweb/wallets";
 import usdc from "../../assets/usdc.svg";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
 import { truncateStr } from "../../utils";
+import { NFTWithQuantity } from "../types";
 
 type TransferModalProps = {
   account: Account | undefined;
-  nftInfo: NFT | undefined;
+  nftInfo: NFTWithQuantity | undefined;
   open: boolean;
   contractAddress: string | undefined;
   isERC20TokenTransfer?: boolean;
-  usdcBalance?: bigint | undefined;
+  usdcBalance?: any;
   nftImage?: string | undefined;
   nftName?: string | undefined;
   onClose: () => void;
@@ -81,7 +81,7 @@ export const TransferModal = ({
           params: [
             account?.address,
             walletAddress,
-            [BigInt(nftInfo?.metadata?.id)],
+            [BigInt(nftInfo?.id)],
             [BigInt(tokenQuantity)],
             "0x",
           ],
@@ -104,11 +104,7 @@ export const TransferModal = ({
             "function safeTransferFrom(address from, address to, uint256 tokenId)",
           // and the params for that method
           // Their types are automatically inferred based on the method signature
-          params: [
-            account?.address,
-            walletAddress,
-            BigInt(nftInfo?.metadata?.id),
-          ],
+          params: [account?.address, walletAddress, BigInt(nftInfo?.id)],
         });
 
         const transactionResult = await sendAndConfirmTransaction({
@@ -128,7 +124,10 @@ export const TransferModal = ({
           method: "function transfer(address to, uint256 value)",
           // and the params for that method
           // Their types are automatically inferred based on the method signature
-          params: [walletAddress, toWei(String(tokenAmount))],
+          params: [
+            walletAddress,
+            toUnits(String(tokenAmount), usdcBalance?.decimals),
+          ],
         });
 
         const transactionResult = await sendAndConfirmTransaction({
@@ -150,11 +149,12 @@ export const TransferModal = ({
     account,
     contract,
     isERC20TokenTransfer,
-    nftInfo?.metadata?.id,
+    nftInfo?.id,
     nftInfo?.type,
     onClose,
     tokenAmount,
     tokenQuantity,
+    usdcBalance?.decimals,
     walletAddress,
   ]);
 
@@ -301,14 +301,14 @@ export const TransferModal = ({
                 endAdornment: <Avatar src={usdc} alt="usdc" />,
               }}
               error={
-                usdcBalance && tokenAmount
-                  ? BigInt(String(tokenAmount)) > usdcBalance
+                usdcBalance?.value && tokenAmount
+                  ? BigInt(String(tokenAmount)) > usdcBalance?.value?.toBigInt()
                   : false
               }
               helperText={
                 usdcBalance &&
                 tokenAmount &&
-                BigInt(String(tokenAmount)) > usdcBalance
+                BigInt(String(tokenAmount)) > usdcBalance?.value?.toBigInt()
                   ? "Token amount exceeds balance"
                   : ""
               }
@@ -324,8 +324,9 @@ export const TransferModal = ({
               (isERC20TokenTransfer
                 ? Number(tokenAmount) == 0 ||
                   tokenAmount == undefined ||
-                  (usdcBalance && tokenAmount
-                    ? BigInt(String(tokenAmount)) > usdcBalance
+                  (usdcBalance?.value && tokenAmount
+                    ? BigInt(String(tokenAmount)) >
+                      usdcBalance?.value?.toBigInt()
                     : true)
                 : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
