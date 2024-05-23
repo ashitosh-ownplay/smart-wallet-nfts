@@ -123,7 +123,7 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
         <CardMedia
           component="img"
           height="240"
-          image={nftInfo?.metadata?.image || imageSrc || NftPlaceholder}
+          image={imageSrc || nftInfo?.metadata?.image || NftPlaceholder}
           alt="nft-image"
           onError={handleError}
         />
