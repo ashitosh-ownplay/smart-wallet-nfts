@@ -167,6 +167,8 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
               account={account}
               isERC20TokenTransfer={false}
               usdcBalance={undefined}
+              nftImage={imageSrc}
+              nftName={metadata?.name}
             />
           ) : null}
         </CardContent>
