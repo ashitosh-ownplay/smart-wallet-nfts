@@ -24,6 +24,7 @@ import { Account } from "thirdweb/wallets";
 import usdc from "../../assets/usdc.svg";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
+import { truncateStr } from "../../utils";
 
 type TransferModalProps = {
   account: Account | undefined;
@@ -32,6 +33,8 @@ type TransferModalProps = {
   contractAddress: string | undefined;
   isERC20TokenTransfer?: boolean;
   usdcBalance?: bigint | undefined;
+  nftImage?: string | undefined;
+  nftName?: string | undefined;
   onClose: () => void;
 };
 
@@ -43,6 +46,8 @@ export const TransferModal = ({
   contractAddress,
   isERC20TokenTransfer,
   usdcBalance,
+  nftImage,
+  nftName,
 }: TransferModalProps) => {
   const [walletAddress, setWalletAddress] = useState<string>();
   const [tokenQuantity, setTokenQuantity] = useState<number>(0);
@@ -195,13 +200,23 @@ export const TransferModal = ({
         >
           <Box
             component="img"
-            src={isERC20TokenTransfer ? usdc : nftInfo?.metadata?.image || ""}
+            src={
+              isERC20TokenTransfer
+                ? usdc
+                : nftImage || nftInfo?.metadata?.image || ""
+            }
             width="100%"
             height={350}
             alt="nft-image"
             borderRadius={1}
           />
-          <Typography variant="h5"> {nftInfo?.metadata?.name}</Typography>
+          <Typography variant="h5">
+            {" "}
+            {truncateStr(
+              nftName || nftInfo?.metadata?.name?.toString() || "",
+              20
+            )}
+          </Typography>
           <TextField
             fullWidth
             label="Wallet Address"
