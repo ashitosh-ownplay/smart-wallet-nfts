@@ -105,7 +105,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
         </Box>
         <TabPanel value="1">
           <NftsList
-            contractAddress={cityNftContract?.contract?.getAddress()}
+            contractAddress={cityNftContract?.address}
             nfts={cityNfts}
             isFetching={isCityNftFetching}
             account={account}
@@ -113,7 +113,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
         </TabPanel>
         <TabPanel value="2">
           <NftsList
-            contractAddress={packagesNftContract?.contract?.getAddress()}
+            contractAddress={packagesNftContract?.address}
             nfts={packageNfts}
             isFetching={isPackageNftFetching}
             account={account}
@@ -121,7 +121,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
         </TabPanel>
         <TabPanel value="3">
           <NftsList
-            contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
+            contractAddress={giftPackagesNFTContract?.address}
             nfts={giftPackageNfts}
             isFetching={isGiftPackageFetching}
             account={account}
@@ -136,7 +136,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
           contractAddress={selectedContractAddrss}
           account={account}
           isERC20TokenTransfer={isERC20TokenTransfer}
-          usdcBalance={usdcBalance?.value?.toBigInt()}
+          usdcBalance={usdcBalance}
         />
       ) : null}
     </Container>

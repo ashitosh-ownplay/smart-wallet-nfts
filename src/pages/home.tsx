@@ -39,6 +39,12 @@ const HomePage = () => {
     setSmartAccount(undefined);
   }, [wallet]);
 
+  const handleKeyPress = (event: { key: string }) => {
+    if (event.key === "Enter") {
+      handleDisconnect();
+      handleFetchNft();
+    }
+  };
   const handleFetchNft = useCallback(async () => {
     try {
       if (!privateKey) return;
@@ -95,6 +101,7 @@ const HomePage = () => {
             xs: "100%",
           },
         }}
+        onKeyDownCapture={handleKeyPress}
         error={error ? error?.length > 0 : false}
         helperText={error && error?.length > 0 ? "Invalid private key" : ""}
       />
