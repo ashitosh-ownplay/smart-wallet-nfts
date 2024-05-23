@@ -2,7 +2,6 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Button, Container, Stack, Tab, Typography } from "@mui/material";
 import React, { useCallback, useState } from "react";
-import { NFT } from "@thirdweb-dev/react";
 import { Account } from "thirdweb/wallets";
 import { NftDataProvider, useNftData } from "../../contexts/NftDataContext"; // Adjust the import path as needed
 import TransferModal from "../TransferModal";
@@ -16,7 +15,6 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
   account,
 }) => {
   const [openTransfer, setOpenTransfer] = useState<boolean>(false);
-  const [selectedNft, setSelectedNft] = useState<NFT>();
   const [tabValue, setTabValue] = useState("1");
   const [selectedContractAddrss, setSelectedContractAdress] =
     useState<string>();
@@ -39,21 +37,6 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
   const handleTabChange = (_event: any, newValue: any) => {
     setTabValue(newValue);
   };
-
-  const handleTransfer = useCallback(
-    (
-      e: React.MouseEvent<HTMLElement>,
-      nft: NFT,
-      contractAddress: string | undefined
-    ) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setSelectedNft(nft);
-      setOpenTransfer(true);
-      setSelectedContractAdress(contractAddress);
-    },
-    []
-  );
 
   const handleERC20Transfer = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -124,24 +107,24 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
           <NftsList
             contractAddress={cityNftContract?.contract?.getAddress()}
             nfts={cityNfts}
-            handleTransfer={handleTransfer}
             isFetching={isCityNftFetching}
+            account={account}
           />
         </TabPanel>
         <TabPanel value="2">
           <NftsList
             contractAddress={packagesNftContract?.contract?.getAddress()}
             nfts={packageNfts}
-            handleTransfer={handleTransfer}
             isFetching={isPackageNftFetching}
+            account={account}
           />
         </TabPanel>
         <TabPanel value="3">
           <NftsList
             contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
             nfts={giftPackageNfts}
-            handleTransfer={handleTransfer}
             isFetching={isGiftPackageFetching}
+            account={account}
           />
         </TabPanel>
       </TabContext>
@@ -149,7 +132,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
         <TransferModal
           open={openTransfer}
           onClose={handleTransferModalClose}
-          nftInfo={selectedNft}
+          nftInfo={undefined}
           contractAddress={selectedContractAddrss}
           account={account}
           isERC20TokenTransfer={isERC20TokenTransfer}

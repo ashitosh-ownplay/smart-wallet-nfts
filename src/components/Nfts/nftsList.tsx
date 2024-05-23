@@ -3,20 +3,17 @@ import { Box, CircularProgress } from "@mui/material";
 import { NFT } from "@thirdweb-dev/react";
 import NftCard from "../NftCard";
 import { memo } from "react";
+import { Account } from "thirdweb/wallets";
 
 type NftsListProps = {
   nfts: NFT[] | undefined;
   isFetching: boolean;
   contractAddress: string | undefined;
-  handleTransfer: (
-    e: React.MouseEvent<HTMLElement>,
-    nft: NFT,
-    contractAddress: string | undefined
-  ) => void;
+  account: Account | undefined;
 };
 
 export const NftsList = memo(
-  ({ nfts, isFetching, contractAddress, handleTransfer }: NftsListProps) => {
+  ({ nfts, isFetching, contractAddress, account }: NftsListProps) => {
     return isFetching ? (
       <CircularProgress size={40} />
     ) : (
@@ -35,8 +32,8 @@ export const NftsList = memo(
             <NftCard
               key={key}
               nftInfo={nft}
-              handleTransfer={handleTransfer}
               contractAddress={contractAddress}
+              account={account}
             />
           );
         })}
