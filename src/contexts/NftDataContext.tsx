@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { Account } from "thirdweb/wallets";
 import {
@@ -30,6 +36,7 @@ interface NftDataContextProps {
   cityNftContract: ThirdwebContract | undefined;
   packagesNftContract: ThirdwebContract | undefined;
   giftPackagesNFTContract: ThirdwebContract | undefined;
+  refetchData: () => void;
 }
 
 const NftDataContext = createContext<NftDataContextProps | undefined>(
@@ -60,6 +67,7 @@ export const NftDataProvider: React.FC<{
   const [packagesNftTokens, setPackagesNftTokens] = useState<any[]>([]);
   const [giftPackageNftTokens, setGiftPackageNftTokens] = useState<any[]>([]);
   const [usdcBalance, setUsdcBalance] = useState<any>();
+  const [refetch, setRefetch] = useState<boolean>(false);
 
   const [isCityNftFetching, setIsCityNftFetching] = useState<boolean>(false);
   const [isPackageNftFetching, setIsPackageNftFetching] =
@@ -116,7 +124,7 @@ export const NftDataProvider: React.FC<{
       }
     };
     getOwnedTokens();
-  }, [account?.address, cityNftContract]);
+  }, [account?.address, cityNftContract, refetch]);
 
   useEffect(() => {
     const getOwnedTokens = async () => {
@@ -146,7 +154,7 @@ export const NftDataProvider: React.FC<{
       }
     };
     getOwnedTokens();
-  }, [account?.address, giftPackagesNFTContract]);
+  }, [account?.address, giftPackagesNFTContract, refetch]);
 
   useEffect(() => {
     const getUsdcBalance = async () => {
@@ -161,7 +169,11 @@ export const NftDataProvider: React.FC<{
       }
     };
     getUsdcBalance();
-  }, [account?.address, usdcContract]);
+  }, [account?.address, usdcContract, refetch]);
+
+  const refetchData = useCallback(() => {
+    setRefetch(true);
+  }, []);
 
   const value = {
     cityNfts: cityNftTokens,
@@ -175,6 +187,7 @@ export const NftDataProvider: React.FC<{
     cityNftContract,
     packagesNftContract,
     giftPackagesNFTContract,
+    refetchData,
   };
 
   return (

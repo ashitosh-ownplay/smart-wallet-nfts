@@ -2,19 +2,21 @@ import { Box, Button, Stack, Typography, colors } from "@mui/material";
 import { CustomModal } from ".";
 import ErrorIcon from "../../assets/RedWarningTriangle.svg";
 
-export interface IErrorModal {
+export interface IMessageModal {
   open: boolean;
   onClose: () => void;
   title?: string | undefined;
-  errorMessage: string | undefined;
+  message: string | undefined;
+  showErrorIcon?: boolean;
 }
 
-export const ErrorModal = ({
+export const MessageModal = ({
   open,
   onClose,
   title,
-  errorMessage,
-}: IErrorModal) => {
+  message,
+  showErrorIcon = true,
+}: IMessageModal) => {
   return (
     <CustomModal open={open} onClose={onClose}>
       <Stack
@@ -29,11 +31,13 @@ export const ErrorModal = ({
           </Typography>
         ) : null}
 
-        <Box component="img" src={ErrorIcon} alt="error-icon" />
+        {showErrorIcon ? (
+          <Box component="img" src={ErrorIcon} alt="error-icon" />
+        ) : null}
 
-        {errorMessage ? (
+        {message ? (
           <Typography fontSize="16px" fontWeight={500} color={colors.grey[700]}>
-            {errorMessage}
+            {message}
           </Typography>
         ) : null}
 
