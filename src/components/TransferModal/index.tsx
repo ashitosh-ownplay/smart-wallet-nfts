@@ -25,7 +25,8 @@ import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
 import { truncateStr } from "../../utils";
 import { NFTWithQuantity } from "../types";
-import { ErrorModal } from "../modal/errorModal";
+import { MessageModal } from "../modal/messageModal";
+import { useNftData } from "../../contexts/NftDataContext";
 
 type TransferModalProps = {
   account: Account | undefined;
@@ -56,6 +57,9 @@ export const TransferModal = ({
   const [contract, setContract] = useState<ThirdwebContract>();
   const [tokenAmount, setTokenAmount] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [successMessage, setSuccessMessage] = useState<string>();
+
+  const { refetchData } = useNftData();
 
   useMemo(() => {
     if (!client || !contractAddress) return;
@@ -97,6 +101,9 @@ export const TransferModal = ({
         // const receipt = await waitForReceipt(transactionResult);
 
         console.log("receipt: ", transactionResult);
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the NFT");
+        }
         setLoading(false);
         onClose();
       } else if (nftInfo?.type === "ERC721") {
@@ -118,8 +125,11 @@ export const TransferModal = ({
         // const receipt = await waitForReceipt(transactionResult);
 
         console.log("receipt: ", transactionResult);
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the NFT");
+        }
         setLoading(false);
-        onClose();
+        // onClose();
       } else if (isERC20TokenTransfer) {
         const transaction = prepareContractCall({
           contract,
@@ -141,8 +151,11 @@ export const TransferModal = ({
         // const receipt = await waitForReceipt(transactionResult);
 
         console.log("receipt: ", transactionResult);
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the USDC tokens");
+        }
         setLoading(false);
-        onClose();
+        // onClose();
       }
     } catch (error) {
       if (String(error)?.includes("didn't pay prefund")) {
@@ -165,7 +178,6 @@ export const TransferModal = ({
     usdcBalance?.decimals,
     walletAddress,
   ]);
-
   const isValidAddress = useMemo(() => {
     if (!walletAddress) return false;
 
@@ -310,13 +322,13 @@ export const TransferModal = ({
               }}
               error={
                 usdcBalance?.value && tokenAmount
-                  ? BigInt(String(tokenAmount)) > usdcBalance?.value?.toBigInt()
+                  ? BigInt(String(tokenAmount)) > usdcBalance?.value
                   : false
               }
               helperText={
                 usdcBalance &&
                 tokenAmount &&
-                BigInt(String(tokenAmount)) > usdcBalance?.value?.toBigInt()
+                BigInt(String(tokenAmount)) > usdcBalance?.value
                   ? "Token amount exceeds balance"
                   : ""
               }
@@ -333,8 +345,7 @@ export const TransferModal = ({
                 ? Number(tokenAmount) == 0 ||
                   tokenAmount == undefined ||
                   (usdcBalance?.value && tokenAmount
-                    ? BigInt(String(tokenAmount)) >
-                      usdcBalance?.value?.toBigInt()
+                    ? BigInt(String(tokenAmount)) > usdcBalance?.value
                     : true)
                 : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
@@ -351,11 +362,22 @@ export const TransferModal = ({
           </Button>
         </Box>
       </Modal>
-      <ErrorModal
+      <MessageModal
         open={!!errorMessage && errorMessage?.length > 0}
         onClose={() => setErrorMessage("")}
-        errorMessage={errorMessage}
+        message={errorMessage}
         title="Error"
+      />
+      <MessageModal
+        open={!!successMessage && successMessage?.length > 0}
+        onClose={() => {
+          setSuccessMessage("");
+          refetchData();
+          onClose();
+        }}
+        message={successMessage}
+        title="Success!"
+        showErrorIcon={false}
       />
     </>
   );

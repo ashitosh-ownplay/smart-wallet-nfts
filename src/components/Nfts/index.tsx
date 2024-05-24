@@ -29,6 +29,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
     isGiftPackageFetching,
     isPackageNftFetching,
     usdcBalance,
+    usdcContract,
     cityNftContract,
     packagesNftContract,
     giftPackagesNFTContract,
@@ -42,11 +43,11 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       e.stopPropagation();
-      setSelectedContractAdress(usdcBalance?.contract?.getAddress());
+      setSelectedContractAdress(usdcContract?.address);
       setIsERC20TokenTransfer(true);
       setOpenTransfer(true);
     },
-    [usdcBalance?.contract]
+    [usdcContract?.address]
   );
 
   const handleTransferModalClose = useCallback(() => {
