@@ -25,6 +25,7 @@ import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
 import { truncateStr } from "../../utils";
 import { NFTWithQuantity } from "../types";
+import { ErrorModal } from "../modal/errorModal";
 
 type TransferModalProps = {
   account: Account | undefined;
@@ -54,6 +55,8 @@ export const TransferModal = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [contract, setContract] = useState<ThirdwebContract>();
   const [tokenAmount, setTokenAmount] = useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>();
+
   useMemo(() => {
     if (!client || !contractAddress) return;
 
@@ -142,6 +145,11 @@ export const TransferModal = ({
         onClose();
       }
     } catch (error) {
+      if (String(error)?.includes("didn't pay prefund")) {
+        setErrorMessage("Insufficient tokens to pay for gas fees");
+      } else {
+        setErrorMessage("Something went wrong");
+      }
       console.log(error);
       setLoading(false);
     }
@@ -343,6 +351,12 @@ export const TransferModal = ({
           </Button>
         </Box>
       </Modal>
+      <ErrorModal
+        open={!!errorMessage && errorMessage?.length > 0}
+        onClose={() => setErrorMessage("")}
+        errorMessage={errorMessage}
+        title="Error"
+      />
     </>
   );
 };
