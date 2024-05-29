@@ -39,9 +39,17 @@ const HomePage = () => {
 
   const handleDisconnect = useCallback(() => {
     wallet?.disconnect();
+    setPrivateKey("");
     setSmartWallet(undefined);
     setSmartAccount(undefined);
   }, [wallet]);
+
+  const handleKeyPress = (event: { key: string }) => {
+    if (event.key === "Enter") {
+      handleDisconnect();
+      handleFetchNft();
+    }
+  };
 
   const handleFetchNft = useCallback(async () => {
     try {
@@ -62,7 +70,6 @@ const HomePage = () => {
         personalAccount: pkWallet,
         client: client,
       });
-
       console.log("smartAccount: ", smartAccount);
 
       setSmartAccount(smartAccount);
@@ -117,6 +124,7 @@ const HomePage = () => {
                 xs: "100%",
               },
             }}
+            onKeyDownCapture={handleKeyPress}
             error={error ? error?.length > 0 : false}
             helperText={error && error?.length > 0 ? "Invalid private key" : ""}
           />
