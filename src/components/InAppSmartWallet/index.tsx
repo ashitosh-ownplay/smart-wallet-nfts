@@ -54,6 +54,7 @@ export function InAppSmartWallet({
       variant="contained"
       style={{ width: "fit-content", height: "48px" }}
       onClick={() => connectToInAppWallet()}
+      disabled={loading}
     >
       {loading ? (
         <CircularProgress color="info" size={20} sx={{ mr: 1 }} />
