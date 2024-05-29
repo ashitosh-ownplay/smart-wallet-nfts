@@ -31,7 +31,6 @@ export const usdcAddress: Record<string, string> = {
 export const cityBuildingsNFTAddress: Record<string, string> = {
   polgonAmoy: "",
   sepolia: "0xbe2290df49503844B851Fb31694fD546b2667dD3", // non-burnable
-  // "sepolia": "0xf688b7201f29953A6828D3834Bd7164Dfd051f28", // burnable city buildings
   arbitrumNova: "0x56D2b86dB9c8aa3fFFE5d4f9e54a51b31C975277", // Dummy for now ...
   base: "0xA4E4A647f774e45df8f9EC9207f128B942616099", // Dummy for now ...
   baseSepolia: "0xFfdd56faC3A5A87b574b1E9ed0F826879811d7D3",
@@ -55,10 +54,10 @@ export const giftPackageNFTAddress: Record<string, string> = {
 
 export const smartWalletFactory: Record<string, string> = {
   polgonAmoy: "",
-  sepolia: "0x21187414d973891032AdfD52e8808adA893dB60b", //"0xB3265d462a79b41279B012f9C9Cdd227b16CFfF9",
-  arbitrumNova: "0x3f743c7417E1db677710371f4fd193c10322F666",
-  base: "0x3f743c7417E1db677710371f4fd193c10322F666",
-  baseSepolia: "0x3f743c7417E1db677710371f4fd193c10322F666",
+  sepolia: "0x21187414d973891032AdfD52e8808adA893dB60b", // Managed Account Factory
+  arbitrumNova: "0x3f743c7417E1db677710371f4fd193c10322F666", // Immutable Account Factory
+  base: "0xcEac86626c7c5571118Cb7A3522d83B28c7c419E", // Managed Account Factory
+  baseSepolia: "0xcEac86626c7c5571118Cb7A3522d83B28c7c419E", // Managed Account Factory
 };
 
 export const chains: Record<string, Chain> = {
@@ -81,4 +80,3 @@ export const chains: Record<string, Chain> = {
 };
 
 export const thirdWebClientId = import.meta.env.VITE_TW_CLIENT_ID;
-console.log("thirdWebClientId: ", thirdWebClientId);

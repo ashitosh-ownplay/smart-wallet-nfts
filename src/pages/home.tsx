@@ -18,6 +18,8 @@ import OwnedNfts from "../components/Nfts";
 import { chainId, chains, smartWalletFactory } from "../configs";
 import { client } from "../configs/client";
 import { truncateAddress } from "../utils";
+import { InAppSmartWallet } from "../components/InAppSmartWallet";
+import { InAppWalletPKExtractorButton } from "../components/InAppWalletPKExtractor";
 
 const HomePage = () => {
   const [privateKey, setPrivateKey] = useState<string>();
@@ -26,6 +28,8 @@ const HomePage = () => {
   const [account, setSmartAccount] = useState<Account>();
   const [wallet, setSmartWallet] = useState<Wallet>();
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [openPKModal, setOpenPKModal] = useState<boolean>(false);
 
   const isMobile = useMediaQuery("(max-width:600px)");
 
@@ -71,6 +75,10 @@ const HomePage = () => {
     }
   }, [privateKey]);
 
+  const handleInAppPKExtrractModalClose = useCallback(() => {
+    setOpenPKModal(false);
+  }, []);
+
   return (
     <Box
       sx={{
@@ -82,22 +90,6 @@ const HomePage = () => {
         width: "100% !important",
       }}
     >
-      <TextField
-        required
-        id="private-key-input"
-        value={privateKey}
-        onChange={onPkChange}
-        label="Private key"
-        placeholder="Enter smart wallet private key"
-        sx={{
-          width: {
-            sm: "564px",
-            xs: "100%",
-          },
-        }}
-        error={error ? error?.length > 0 : false}
-        helperText={error && error?.length > 0 ? "Invalid private key" : ""}
-      />
       {account?.address ? (
         <Typography
           sx={{ cursor: "pointer" }}
@@ -111,28 +103,59 @@ const HomePage = () => {
       ) : null}
 
       {!account?.address ? (
-        <Button
-          variant="contained"
-          disabled={!privateKey || loading}
-          onClick={handleFetchNft}
-          style={{ width: "fit-content", height: "48px" }}
-        >
-          {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-          Connect To Smart Wallet
-        </Button>
+        <>
+          <TextField
+            required
+            id="private-key-input"
+            value={privateKey}
+            onChange={onPkChange}
+            label="Private key"
+            placeholder="Enter smart wallet private key"
+            sx={{
+              width: {
+                sm: "564px",
+                xs: "100%",
+              },
+            }}
+            error={error ? error?.length > 0 : false}
+            helperText={error && error?.length > 0 ? "Invalid private key" : ""}
+          />
+          <Button
+            variant="contained"
+            disabled={!privateKey || loading}
+            onClick={handleFetchNft}
+            style={{ width: "fit-content", height: "48px" }}
+          >
+            {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Connect To Smart Wallet
+          </Button>
+          <InAppSmartWallet
+            loading={loading}
+            setAccount={setSmartAccount}
+            setWallet={setSmartWallet}
+            setLoading={setLoading}
+          />
+        </>
       ) : (
-        <Button
-          variant="contained"
-          onClick={handleDisconnect}
-          style={{
-            width: "fit-content",
-            height: "48px",
-            backgroundColor: "red",
-          }}
-        >
-          {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-          Disconnect Smart Wallet
-        </Button>
+        <>
+          <Button
+            variant="contained"
+            onClick={handleDisconnect}
+            style={{
+              width: "fit-content",
+              height: "48px",
+              backgroundColor: "red",
+            }}
+          >
+            {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Disconnect Smart Wallet
+          </Button>
+          <InAppWalletPKExtractorButton
+            setOpen={setOpenPKModal}
+            open={openPKModal}
+            onClose={handleInAppPKExtrractModalClose}
+          />
+        </>
       )}
 
       {/* <Divider sx={{ width: "100%" }} /> */}

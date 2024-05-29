@@ -6,6 +6,7 @@ import {
   useContract,
   useOwnedNFTs,
   useTokenBalance,
+  useTokenDecimals,
 } from "@thirdweb-dev/react";
 import { useCallback, useState } from "react";
 import { Account } from "thirdweb/wallets";
@@ -36,6 +37,9 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
   const cityNftContract = useContract(cityBuildingsNFTAddress[chainId]);
   const packagesNftContract = useContract(packagesNFTAddress[chainId]);
   const giftPackagesNFTContract = useContract(giftPackageNFTAddress[chainId]);
+
+  const { data: tokenDecimals } = useTokenDecimals(usdcContract.contract);
+  console.log(tokenDecimals);
 
   const { data: usdcBalance } = useTokenBalance(
     usdcContract.contract,
@@ -107,82 +111,87 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
   }, []);
 
   return (
-    <Container maxWidth={false} sx={{ gap: 4 }}>
-      <Stack
-        width="100%"
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        gap={2}
-        mb={3}
-      >
-        <Box
-          display="flex"
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="center"
-          width="100%"
-          gap={2}
-        >
-          <Typography variant="h6">Usdc Balance:</Typography>
-          <Typography variant="h6" fontWeight={600}>
-            {usdcBalance?.value.toString() || 0} USDC
-          </Typography>
-        </Box>
-        <Button variant="contained" onClick={handleERC20Transfer}>
-          Transfer USDC
-        </Button>
-      </Stack>
-      <TabContext value={tabValue}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList
-            onChange={handleTabChange}
-            aria-label="nfts tabs"
-            scrollButtons="auto"
-            variant="scrollable"
+    <>
+      {account && (
+        <Container maxWidth={false} sx={{ gap: 4 }}>
+          <Stack
+            width="100%"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            gap={2}
+            mb={3}
           >
-            {tabsData?.map((tab) => {
-              return <Tab key={tab.id} label={tab.label} value={tab.id} />;
-            })}
-          </TabList>
-        </Box>
-        <TabPanel value="1">
-          <NftsList
-            contractAddress={cityNftContract?.contract?.getAddress()}
-            nfts={cityNfts}
-            handleTransfer={handleTransfer}
-            isFetching={isCityNftFetching}
-          />
-        </TabPanel>
-        <TabPanel value="2">
-          <NftsList
-            contractAddress={packagesNftContract?.contract?.getAddress()}
-            nfts={packageNFts}
-            handleTransfer={handleTransfer}
-            isFetching={isPackageNftFetching}
-          />
-        </TabPanel>
-        <TabPanel value="3">
-          <NftsList
-            contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
-            nfts={giftPackageNfts}
-            handleTransfer={handleTransfer}
-            isFetching={isGiftPackageFetching}
-          />
-        </TabPanel>
-      </TabContext>
-      {openTransfer ? (
-        <TransferModal
-          open={openTransfer}
-          onClose={handleTransferModalClose}
-          nftInfo={selectedNft}
-          contractAddress={selectedContractAddrss}
-          account={account}
-          isERC20TokenTransfer={isERC20TokenTransfer}
-          usdcBalance={usdcBalance?.value?.toNumber()}
-        />
-      ) : null}
-    </Container>
+            <Box
+              display="flex"
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="center"
+              width="100%"
+              gap={2}
+            >
+              <Typography variant="h6">USDC Balance:</Typography>
+              <Typography variant="h6" fontWeight={600}>
+                {usdcBalance?.displayValue.toString() || 0} USDC
+              </Typography>
+            </Box>
+            <Button variant="contained" onClick={handleERC20Transfer}>
+              Transfer USDC
+            </Button>
+          </Stack>
+          <TabContext value={tabValue}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList
+                onChange={handleTabChange}
+                aria-label="nfts tabs"
+                scrollButtons="auto"
+                variant="scrollable"
+              >
+                {tabsData?.map((tab) => {
+                  return <Tab key={tab.id} label={tab.label} value={tab.id} />;
+                })}
+              </TabList>
+            </Box>
+            <TabPanel value="1">
+              <NftsList
+                contractAddress={cityNftContract?.contract?.getAddress()}
+                nfts={cityNfts}
+                handleTransfer={handleTransfer}
+                isFetching={isCityNftFetching}
+              />
+            </TabPanel>
+            <TabPanel value="2">
+              <NftsList
+                contractAddress={packagesNftContract?.contract?.getAddress()}
+                nfts={packageNFts}
+                handleTransfer={handleTransfer}
+                isFetching={isPackageNftFetching}
+              />
+            </TabPanel>
+            <TabPanel value="3">
+              <NftsList
+                contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
+                nfts={giftPackageNfts}
+                handleTransfer={handleTransfer}
+                isFetching={isGiftPackageFetching}
+              />
+            </TabPanel>
+          </TabContext>
+          {openTransfer ? (
+            <TransferModal
+              open={openTransfer}
+              onClose={handleTransferModalClose}
+              nftInfo={selectedNft}
+              contractAddress={selectedContractAddrss}
+              account={account}
+              isERC20TokenTransfer={isERC20TokenTransfer}
+              usdcBalance={usdcBalance?.value?.toString()}
+              tokenDecimals={usdcBalance?.decimals}
+            />
+          ) : null}
+        </Container>
+      )}
+    </>
   );
 };
 

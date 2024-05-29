@@ -18,7 +18,6 @@ import {
   isAddress,
   prepareContractCall,
   sendAndConfirmTransaction,
-  toWei,
 } from "thirdweb";
 import { Account } from "thirdweb/wallets";
 import usdc from "../../assets/usdc.svg";
@@ -31,7 +30,8 @@ type TransferModalProps = {
   open: boolean;
   contractAddress: string | undefined;
   isERC20TokenTransfer?: boolean;
-  usdcBalance?: number | undefined;
+  usdcBalance?: string | undefined;
+  tokenDecimals?: number | undefined;
   onClose: () => void;
 };
 
@@ -43,6 +43,7 @@ export const TransferModal = ({
   contractAddress,
   isERC20TokenTransfer,
   usdcBalance,
+  tokenDecimals,
 }: TransferModalProps) => {
   const [walletAddress, setWalletAddress] = useState<string>();
   const [tokenQuantity, setTokenQuantity] = useState<number>(0);
@@ -124,7 +125,10 @@ export const TransferModal = ({
           method: "function transfer(address to, uint256 value)",
           // and the params for that method
           // Their types are automatically inferred based on the method signature
-          params: [walletAddress, toWei(String(tokenAmount))],
+          params: [
+            walletAddress,
+            BigInt(tokenAmount!) * BigInt("10") ** BigInt(tokenDecimals!),
+          ],
         });
 
         const transactionResult = await sendAndConfirmTransaction({
@@ -152,6 +156,7 @@ export const TransferModal = ({
     tokenAmount,
     tokenQuantity,
     walletAddress,
+    tokenDecimals,
   ]);
 
   const isValidAddress = useMemo(() => {
@@ -286,9 +291,19 @@ export const TransferModal = ({
                 inputProps: { min: 0 },
                 endAdornment: <Avatar src={usdc} alt="usdc" />,
               }}
-              error={Number(tokenAmount) > Number(usdcBalance)}
+              error={
+                BigInt(
+                  tokenAmount && tokenDecimals
+                    ? (Number(tokenAmount) * tokenDecimals).toString()
+                    : "0"
+                ) > BigInt(String(usdcBalance))
+              }
               helperText={
-                Number(tokenAmount) > Number(usdcBalance)
+                BigInt(
+                  tokenAmount && tokenDecimals
+                    ? (Number(tokenAmount) * tokenDecimals).toString()
+                    : "0"
+                ) > BigInt(String(usdcBalance))
                   ? "Token amount exceeds balance"
                   : ""
               }
@@ -304,7 +319,11 @@ export const TransferModal = ({
               isERC20TokenTransfer
                 ? Number(tokenAmount) == 0 ||
                   tokenAmount == undefined ||
-                  Number(tokenAmount) > Number(usdcBalance)
+                  BigInt(
+                    tokenAmount && tokenDecimals
+                      ? (Number(tokenAmount) * tokenDecimals).toString()
+                      : "0"
+                  ) > BigInt(String(usdcBalance))
                 : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
                 : false
