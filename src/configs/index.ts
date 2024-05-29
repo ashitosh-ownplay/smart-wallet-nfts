@@ -54,7 +54,8 @@ export const giftPackageNFTAddress: Record<string, string> = {
 
 export const smartWalletFactory: Record<string, string> = {
   polgonAmoy: "",
-  sepolia: "0x21187414d973891032AdfD52e8808adA893dB60b", // Managed Account Factory
+  sepolia: "0xB3265d462a79b41279B012f9C9Cdd227b16CFfF9", // Immutable Account Factory
+  // sepolia: "0x21187414d973891032AdfD52e8808adA893dB60b", // Managed Account Factory
   arbitrumNova: "0x3f743c7417E1db677710371f4fd193c10322F666", // Immutable Account Factory
   base: "0xcEac86626c7c5571118Cb7A3522d83B28c7c419E", // Managed Account Factory
   baseSepolia: "0xcEac86626c7c5571118Cb7A3522d83B28c7c419E", // Managed Account Factory

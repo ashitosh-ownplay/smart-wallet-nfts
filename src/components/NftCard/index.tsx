@@ -1,36 +1,55 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { NFT } from "@thirdweb-dev/react";
+import { useCallback, useEffect, useState } from "react";
+import { Account } from "thirdweb/wallets";
 import NftPlaceholder from "../../assets/nft-placeholder.png";
 import { truncateStr } from "../../utils";
-import { useEffect, useState } from "react";
+import TransferModal from "../TransferModal";
+import { NFTWithQuantity } from "../types";
+import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
+import { tokenURI } from "thirdweb/extensions/erc721";
 import { tokenUri } from "thirdweb/extensions/erc1155";
-import { getContract } from "thirdweb";
 import { client } from "../../configs/client";
 import { chainId, chains } from "../../configs";
-import { ipfsUrlToCfGateway } from "../../utils/ipfs-cf";
+import { getContract } from "thirdweb";
+
 export interface INftCard {
-  nftInfo: NFT;
+  nftInfo: NFTWithQuantity;
   contractAddress: string | undefined;
-  handleTransfer: (
-    e: React.MouseEvent<HTMLElement>,
-    nft: NFT,
-    contractAddress: string | undefined
-  ) => void;
+  account: Account | undefined;
 }
 
-export const NftCard = ({
-  nftInfo,
-  handleTransfer,
-  contractAddress,
-}: INftCard) => {
+const gateways = [
+  "https://cloudflare-ipfs.com/ipfs/",
+  "https://ipfs.io/ipfs/",
+  "https://gateway.pinata.cloud/ipfs/",
+  "https://dweb.link/ipfs/",
+];
+
+export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
   console.log("nftInfo: ", nftInfo);
 
   const [metadata, setMetadata] = useState<any>(undefined);
+  const [openTransfer, setOpenTransfer] = useState<boolean>(false);
+
+  const [imageSrc, setImageSrc] = useState("");
+  const [gatewayIndex, setGatewayIndex] = useState(0);
+
+  const handleTransferModalClose = useCallback(() => {
+    setOpenTransfer(false);
+  }, []);
+
+  const handleTransfer = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setOpenTransfer(true);
+  }, []);
 
   console.log("metadata: ", metadata);
   useEffect(() => {
@@ -42,22 +61,55 @@ export const NftCard = ({
       });
 
       if (contract) {
-        const result = await tokenUri({
-          contract,
-          tokenId: BigInt(nftInfo?.metadata?.id),
-        });
+        let result;
+
+        if (nftInfo?.type === "ERC1155") {
+          result = await tokenUri({
+            contract,
+            tokenId: nftInfo?.id,
+          });
+        } else {
+          result = await tokenURI({
+            contract,
+            tokenId: nftInfo?.id,
+          });
+        }
 
         const metadata = await (
-          await fetch(ipfsUrlToCfGateway(result as string))
+          await fetch(
+            nftInfo?.type === "ERC1155"
+              ? ipfsUrlToCfGateway(result as string)
+              : (result as string)
+          )
         ).json();
 
         setMetadata(metadata);
       }
     };
 
-    getTokenMetadata();
-  }, [contractAddress, nftInfo?.metadata?.id, setMetadata]);
+    getTokenMetadata().catch((e) => console.log(e));
+  }, [contractAddress, nftInfo?.id, nftInfo?.type, setMetadata]);
 
+  useEffect(() => {
+    const fetchImage = () => {
+      const gatewayUrl = metadata?.image.replace(
+        "ipfs://",
+        gateways[gatewayIndex]
+      );
+      setImageSrc(gatewayUrl);
+    };
+
+    fetchImage();
+  }, [gatewayIndex, metadata?.image]);
+
+  const handleError = () => {
+    if (gatewayIndex < gateways.length - 1) {
+      setGatewayIndex(gatewayIndex + 1);
+    } else {
+      setImageSrc(NftPlaceholder);
+      console.log("Failed to load image from all gateways.");
+    }
+  };
   return (
     <>
       <Card
@@ -71,12 +123,16 @@ export const NftCard = ({
         <CardMedia
           component="img"
           height="240"
-          image={nftInfo?.metadata?.image || NftPlaceholder}
+          image={imageSrc || nftInfo?.metadata?.image || NftPlaceholder}
           alt="nft-image"
+          onError={handleError}
         />
         <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Typography gutterBottom variant="h5" component="div">
-            {truncateStr(nftInfo?.metadata?.name?.toString() || "", 20)}
+            {truncateStr(
+              metadata?.name || nftInfo?.metadata?.name?.toString() || "",
+              20
+            )}
           </Typography>
 
           {nftInfo?.type === "ERC1155" ? (
@@ -85,21 +141,36 @@ export const NftCard = ({
               color="text.secondary"
               textAlign="start"
             >
-              <b>Token Quantity: </b> {nftInfo?.quantityOwned || 0}
+              <b>Token Quantity: </b> {nftInfo?.supply?.toString() || 0}
             </Typography>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              {truncateStr(nftInfo?.metadata?.description || "", 50)}
+              {truncateStr(
+                metadata?.description || nftInfo?.metadata?.description || "",
+                50
+              )}
             </Typography>
           )}
 
-          <Button
-            variant="contained"
-            disabled={nftInfo.type === "ERC1155"}
-            onClick={(e) => handleTransfer(e, nftInfo, contractAddress)}
-          >
-            Transfer
-          </Button>
+          {nftInfo.type === "ERC1155" ? null : (
+            <Button variant="contained" onClick={handleTransfer}>
+              Transfer
+            </Button>
+          )}
+
+          {openTransfer ? (
+            <TransferModal
+              open={openTransfer}
+              onClose={handleTransferModalClose}
+              nftInfo={nftInfo}
+              contractAddress={contractAddress}
+              account={account}
+              isERC20TokenTransfer={false}
+              usdcBalance={undefined}
+              nftImage={imageSrc}
+              nftName={metadata?.name}
+            />
+          ) : null}
         </CardContent>
       </Card>
     </>

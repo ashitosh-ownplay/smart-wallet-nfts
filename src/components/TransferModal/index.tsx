@@ -10,7 +10,6 @@ import {
   Typography,
   colors,
 } from "@mui/material";
-import { NFT } from "@thirdweb-dev/react";
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import {
   ThirdwebContract,
@@ -18,20 +17,26 @@ import {
   isAddress,
   prepareContractCall,
   sendAndConfirmTransaction,
+  toUnits,
 } from "thirdweb";
 import { Account } from "thirdweb/wallets";
 import usdc from "../../assets/usdc.svg";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
+import { truncateStr } from "../../utils";
+import { NFTWithQuantity } from "../types";
+import { MessageModal } from "../modal/messageModal";
+import { useNftData } from "../../contexts/NftDataContext";
 
 type TransferModalProps = {
   account: Account | undefined;
-  nftInfo: NFT | undefined;
+  nftInfo: NFTWithQuantity | undefined;
   open: boolean;
   contractAddress: string | undefined;
   isERC20TokenTransfer?: boolean;
-  usdcBalance?: string | undefined;
-  tokenDecimals?: number | undefined;
+  usdcBalance?: any;
+  nftImage?: string | undefined;
+  nftName?: string | undefined;
   onClose: () => void;
 };
 
@@ -43,13 +48,18 @@ export const TransferModal = ({
   contractAddress,
   isERC20TokenTransfer,
   usdcBalance,
-  tokenDecimals,
+  nftImage,
+  nftName,
 }: TransferModalProps) => {
   const [walletAddress, setWalletAddress] = useState<string>();
   const [tokenQuantity, setTokenQuantity] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [contract, setContract] = useState<ThirdwebContract>();
   const [tokenAmount, setTokenAmount] = useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [successMessage, setSuccessMessage] = useState<string>();
+
+  const { refetchData } = useNftData();
 
   useMemo(() => {
     if (!client || !contractAddress) return;
@@ -78,7 +88,7 @@ export const TransferModal = ({
           params: [
             account?.address,
             walletAddress,
-            [BigInt(nftInfo?.metadata?.id)],
+            [BigInt(nftInfo?.id)],
             [BigInt(tokenQuantity)],
             "0x",
           ],
@@ -91,6 +101,9 @@ export const TransferModal = ({
         // const receipt = await waitForReceipt(transactionResult);
 
         console.log("receipt: ", transactionResult);
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the NFT");
+        }
         setLoading(false);
         onClose();
       } else if (nftInfo?.type === "ERC721") {
@@ -101,11 +114,7 @@ export const TransferModal = ({
             "function safeTransferFrom(address from, address to, uint256 tokenId)",
           // and the params for that method
           // Their types are automatically inferred based on the method signature
-          params: [
-            account?.address,
-            walletAddress,
-            BigInt(nftInfo?.metadata?.id),
-          ],
+          params: [account?.address, walletAddress, BigInt(nftInfo?.id)],
         });
 
         const transactionResult = await sendAndConfirmTransaction({
@@ -116,8 +125,11 @@ export const TransferModal = ({
         // const receipt = await waitForReceipt(transactionResult);
 
         console.log("receipt: ", transactionResult);
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the NFT");
+        }
         setLoading(false);
-        onClose();
+        // onClose();
       } else if (isERC20TokenTransfer) {
         const transaction = prepareContractCall({
           contract,
@@ -127,7 +139,7 @@ export const TransferModal = ({
           // Their types are automatically inferred based on the method signature
           params: [
             walletAddress,
-            BigInt(tokenAmount!) * BigInt("10") ** BigInt(tokenDecimals!),
+            toUnits(String(tokenAmount), usdcBalance?.decimals),
           ],
         });
 
@@ -139,10 +151,18 @@ export const TransferModal = ({
         // const receipt = await waitForReceipt(transactionResult);
 
         console.log("receipt: ", transactionResult);
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the USDC tokens");
+        }
         setLoading(false);
-        onClose();
+        // onClose();
       }
     } catch (error) {
+      if (String(error)?.includes("didn't pay prefund")) {
+        setErrorMessage("Insufficient tokens to pay for gas fees");
+      } else {
+        setErrorMessage("Something went wrong");
+      }
       console.log(error);
       setLoading(false);
     }
@@ -150,15 +170,14 @@ export const TransferModal = ({
     account,
     contract,
     isERC20TokenTransfer,
-    nftInfo?.metadata?.id,
+    nftInfo?.id,
     nftInfo?.type,
     onClose,
     tokenAmount,
     tokenQuantity,
+    usdcBalance?.decimals,
     walletAddress,
-    tokenDecimals,
   ]);
-
   const isValidAddress = useMemo(() => {
     if (!walletAddress) return false;
 
@@ -201,13 +220,23 @@ export const TransferModal = ({
         >
           <Box
             component="img"
-            src={isERC20TokenTransfer ? usdc : nftInfo?.metadata?.image || ""}
+            src={
+              isERC20TokenTransfer
+                ? usdc
+                : nftImage || nftInfo?.metadata?.image || ""
+            }
             width="100%"
             height={350}
             alt="nft-image"
             borderRadius={1}
           />
-          <Typography variant="h5"> {nftInfo?.metadata?.name}</Typography>
+          <Typography variant="h5">
+            {" "}
+            {truncateStr(
+              nftName || nftInfo?.metadata?.name?.toString() || "",
+              20
+            )}
+          </Typography>
           <TextField
             fullWidth
             label="Wallet Address"
@@ -292,18 +321,14 @@ export const TransferModal = ({
                 endAdornment: <Avatar src={usdc} alt="usdc" />,
               }}
               error={
-                BigInt(
-                  tokenAmount && tokenDecimals
-                    ? (Number(tokenAmount) * tokenDecimals).toString()
-                    : "0"
-                ) > BigInt(String(usdcBalance))
+                usdcBalance?.value && tokenAmount
+                  ? BigInt(String(tokenAmount)) > usdcBalance?.value
+                  : false
               }
               helperText={
-                BigInt(
-                  tokenAmount && tokenDecimals
-                    ? (Number(tokenAmount) * tokenDecimals).toString()
-                    : "0"
-                ) > BigInt(String(usdcBalance))
+                usdcBalance &&
+                tokenAmount &&
+                BigInt(String(tokenAmount)) > usdcBalance?.value
                   ? "Token amount exceeds balance"
                   : ""
               }
@@ -313,20 +338,18 @@ export const TransferModal = ({
           <Button
             variant="contained"
             disabled={
+              loading ||
               !walletAddress ||
               !isValidAddress ||
-              loading ||
-              isERC20TokenTransfer
+              (isERC20TokenTransfer
                 ? Number(tokenAmount) == 0 ||
                   tokenAmount == undefined ||
-                  BigInt(
-                    tokenAmount && tokenDecimals
-                      ? (Number(tokenAmount) * tokenDecimals).toString()
-                      : "0"
-                  ) > BigInt(String(usdcBalance))
+                  (usdcBalance?.value && tokenAmount
+                    ? BigInt(String(tokenAmount)) > usdcBalance?.value
+                    : true)
                 : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
-                : false
+                : false)
             }
             onClick={tranferNft}
             fullWidth
@@ -339,6 +362,23 @@ export const TransferModal = ({
           </Button>
         </Box>
       </Modal>
+      <MessageModal
+        open={!!errorMessage && errorMessage?.length > 0}
+        onClose={() => setErrorMessage("")}
+        message={errorMessage}
+        title="Error"
+      />
+      <MessageModal
+        open={!!successMessage && successMessage?.length > 0}
+        onClose={() => {
+          setSuccessMessage("");
+          refetchData();
+          onClose();
+        }}
+        message={successMessage}
+        title="Success!"
+        showErrorIcon={false}
+      />
     </>
   );
 };

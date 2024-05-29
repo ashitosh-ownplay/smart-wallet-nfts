@@ -1,22 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Button, Container, Stack, Tab, Typography } from "@mui/material";
-import {
-  NFT,
-  useContract,
-  useOwnedNFTs,
-  useTokenBalance,
-  useTokenDecimals,
-} from "@thirdweb-dev/react";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Account } from "thirdweb/wallets";
-import {
-  chainId,
-  cityBuildingsNFTAddress,
-  giftPackageNFTAddress,
-  packagesNFTAddress,
-  usdcAddress,
-} from "../../configs";
+import { NftDataProvider, useNftData } from "../../contexts/NftDataContext"; // Adjust the import path as needed
 import TransferModal from "../TransferModal";
 import NftsList from "./nftsList";
 
@@ -24,84 +11,43 @@ export interface IOwnedNfts {
   account: Account | undefined;
 }
 
-export const OwnedNfts = ({ account }: IOwnedNfts) => {
+const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
+  account,
+}) => {
   const [openTransfer, setOpenTransfer] = useState<boolean>(false);
-  const [selectedNft, setSelectedNft] = useState<NFT>();
   const [tabValue, setTabValue] = useState("1");
   const [selectedContractAddrss, setSelectedContractAdress] =
     useState<string>();
   const [isERC20TokenTransfer, setIsERC20TokenTransfer] =
     useState<boolean>(false);
 
-  const usdcContract = useContract(usdcAddress[chainId]);
-  const cityNftContract = useContract(cityBuildingsNFTAddress[chainId]);
-  const packagesNftContract = useContract(packagesNFTAddress[chainId]);
-  const giftPackagesNFTContract = useContract(giftPackageNFTAddress[chainId]);
-
-  const { data: tokenDecimals } = useTokenDecimals(usdcContract.contract);
-  console.log(tokenDecimals);
-
-  const { data: usdcBalance } = useTokenBalance(
-    usdcContract.contract,
-    account?.address
-  );
-
-  const { data: cityNfts, isFetching: isCityNftFetching } = useOwnedNFTs(
-    cityNftContract?.contract,
-    account?.address
-  );
-
-  const { data: giftPackageNfts, isFetching: isGiftPackageFetching } =
-    useOwnedNFTs(giftPackagesNFTContract?.contract, account?.address || "");
-
-  const { data: packageNFts, isFetching: isPackageNftFetching } = useOwnedNFTs(
-    packagesNftContract?.contract,
-    account?.address
-  );
-
-  const tabsData = [
-    {
-      label: "City Building NFTs",
-      id: "1",
-    },
-    {
-      label: "Packages NFTs",
-      id: "2",
-    },
-    {
-      label: "Gift Packages NFTs",
-      id: "3",
-    },
-  ];
+  const {
+    cityNfts,
+    giftPackageNfts,
+    packageNfts,
+    isCityNftFetching,
+    isGiftPackageFetching,
+    isPackageNftFetching,
+    usdcBalance,
+    usdcContract,
+    cityNftContract,
+    packagesNftContract,
+    giftPackagesNFTContract,
+  } = useNftData();
 
   const handleTabChange = (_event: any, newValue: any) => {
     setTabValue(newValue);
   };
 
-  const handleTransfer = useCallback(
-    (
-      e: React.MouseEvent<HTMLElement>,
-      nft: NFT,
-      contractAddress: string | undefined
-    ) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setSelectedNft(nft);
-      setOpenTransfer(true);
-      setSelectedContractAdress(contractAddress);
-    },
-    []
-  );
-
   const handleERC20Transfer = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       e.stopPropagation();
-      setSelectedContractAdress(usdcContract.contract?.getAddress());
+      setSelectedContractAdress(usdcContract?.address);
       setIsERC20TokenTransfer(true);
       setOpenTransfer(true);
     },
-    [usdcContract.contract]
+    [usdcContract?.address]
   );
 
   const handleTransferModalClose = useCallback(() => {
@@ -112,6 +58,7 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
 
   return (
     <>
+      {" "}
       {account && (
         <Container maxWidth={false} sx={{ gap: 4 }}>
           <Stack
@@ -130,12 +77,16 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
               width="100%"
               gap={2}
             >
-              <Typography variant="h6">USDC Balance:</Typography>
+              <Typography variant="h6">Usdc Balance:</Typography>
               <Typography variant="h6" fontWeight={600}>
-                {usdcBalance?.displayValue.toString() || 0} USDC
+                {usdcBalance?.value.toString() || 0} USDC
               </Typography>
             </Box>
-            <Button variant="contained" onClick={handleERC20Transfer}>
+            <Button
+              variant="contained"
+              onClick={handleERC20Transfer}
+              disabled={Number(usdcBalance?.value.toString()) <= 0}
+            >
               Transfer USDC
             </Button>
           </Stack>
@@ -147,33 +98,37 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
                 scrollButtons="auto"
                 variant="scrollable"
               >
-                {tabsData?.map((tab) => {
-                  return <Tab key={tab.id} label={tab.label} value={tab.id} />;
-                })}
+                {[
+                  { label: "City Building NFTs", id: "1" },
+                  { label: "Packages NFTs", id: "2" },
+                  { label: "Gift Packages NFTs", id: "3" },
+                ].map((tab) => (
+                  <Tab key={tab.id} label={tab.label} value={tab.id} />
+                ))}
               </TabList>
             </Box>
             <TabPanel value="1">
               <NftsList
-                contractAddress={cityNftContract?.contract?.getAddress()}
+                contractAddress={cityNftContract?.address}
                 nfts={cityNfts}
-                handleTransfer={handleTransfer}
                 isFetching={isCityNftFetching}
+                account={account}
               />
             </TabPanel>
             <TabPanel value="2">
               <NftsList
-                contractAddress={packagesNftContract?.contract?.getAddress()}
-                nfts={packageNFts}
-                handleTransfer={handleTransfer}
+                contractAddress={packagesNftContract?.address}
+                nfts={packageNfts}
                 isFetching={isPackageNftFetching}
+                account={account}
               />
             </TabPanel>
             <TabPanel value="3">
               <NftsList
-                contractAddress={giftPackagesNFTContract?.contract?.getAddress()}
+                contractAddress={giftPackagesNFTContract?.address}
                 nfts={giftPackageNfts}
-                handleTransfer={handleTransfer}
                 isFetching={isGiftPackageFetching}
+                account={account}
               />
             </TabPanel>
           </TabContext>
@@ -181,17 +136,24 @@ export const OwnedNfts = ({ account }: IOwnedNfts) => {
             <TransferModal
               open={openTransfer}
               onClose={handleTransferModalClose}
-              nftInfo={selectedNft}
+              nftInfo={undefined}
               contractAddress={selectedContractAddrss}
               account={account}
               isERC20TokenTransfer={isERC20TokenTransfer}
-              usdcBalance={usdcBalance?.value?.toString()}
-              tokenDecimals={usdcBalance?.decimals}
+              usdcBalance={usdcBalance}
             />
           ) : null}
         </Container>
       )}
     </>
+  );
+};
+
+const OwnedNfts: React.FC<IOwnedNfts> = ({ account }) => {
+  return (
+    <NftDataProvider account={account}>
+      <OwnedNftsContent account={account} />
+    </NftDataProvider>
   );
 };
 

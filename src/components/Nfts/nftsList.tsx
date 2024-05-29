@@ -1,50 +1,45 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Box, CircularProgress } from "@mui/material";
-import { NFT } from "@thirdweb-dev/react";
 import NftCard from "../NftCard";
+import { memo } from "react";
+import { Account } from "thirdweb/wallets";
+import { NFTWithQuantity } from "../types";
 
 type NftsListProps = {
-  nfts: NFT[] | undefined;
+  nfts: NFTWithQuantity[] | undefined;
   isFetching: boolean;
   contractAddress: string | undefined;
-  handleTransfer: (
-    e: React.MouseEvent<HTMLElement>,
-    nft: NFT,
-    contractAddress: string | undefined
-  ) => void;
+  account: Account | undefined;
 };
 
-export const NftsList = ({
-  nfts,
-  isFetching,
-  contractAddress,
-  handleTransfer,
-}: NftsListProps) => {
-  return isFetching ? (
-    <CircularProgress size={40} />
-  ) : (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 4,
-      }}
-    >
-      {nfts?.map((nft, key) => {
-        return (
-          <NftCard
-            key={key}
-            nftInfo={nft}
-            handleTransfer={handleTransfer}
-            contractAddress={contractAddress}
-          />
-        );
-      })}
-    </Box>
-  );
-};
+export const NftsList = memo(
+  ({ nfts, isFetching, contractAddress, account }: NftsListProps) => {
+    return isFetching ? (
+      <CircularProgress size={40} />
+    ) : (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 4,
+        }}
+      >
+        {nfts?.map((nft, key) => {
+          return (
+            <NftCard
+              key={key}
+              nftInfo={nft}
+              contractAddress={contractAddress}
+              account={account}
+            />
+          );
+        })}
+      </Box>
+    );
+  }
+);
 
 export default NftsList;
