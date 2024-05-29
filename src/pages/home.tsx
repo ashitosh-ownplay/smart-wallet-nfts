@@ -28,6 +28,7 @@ const HomePage = () => {
   const [account, setSmartAccount] = useState<Account>();
   const [wallet, setSmartWallet] = useState<Wallet>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingExportPK, setLoadingExportPk] = useState<boolean>(false);
 
   const [openPKModal, setOpenPKModal] = useState<boolean>(false);
 
@@ -138,10 +139,10 @@ const HomePage = () => {
             Connect To Smart Wallet
           </Button>
           <InAppSmartWallet
-            loading={loading}
+            loading={loadingExportPK}
             setAccount={setSmartAccount}
             setWallet={setSmartWallet}
-            setLoading={setLoading}
+            setLoading={setLoadingExportPk}
           />
         </>
       ) : (
