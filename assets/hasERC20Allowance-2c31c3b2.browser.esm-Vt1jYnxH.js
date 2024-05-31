@@ -1,0 +1,2 @@
+const __vite__fileDeps=["assets/index-BDn_wxOP.js","assets/index-B_SY1GJM.css"],__vite__mapDeps=i=>i.map(i=>__vite__fileDeps[i]);
+import{_ as l,b8 as w}from"./index-BDn_wxOP.js";async function g(e,a,t){const n=e.getProvider(),r=(await l(()=>import("./index-BDn_wxOP.js").then(d=>d.f0),__vite__mapDeps([0,1]))).default,s=new w(n,a,r,{},e.storage),o=await e.getSignerAddress(),i=e.address;return(await s.read("allowance",[o,i])).gte(t)}export{g as h};

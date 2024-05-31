@@ -1,0 +1,1 @@
+import{i as t}from"./isValidSignature-CgorzSLA.js";import{i as r,a5 as e}from"./index-BDn_wxOP.js";const i="0x1626ba7e";async function u(a){if(!r(a.signature))throw new Error("The signature must be a valid hex string.");return await t({contract:a.contract,hash:e(a.data),signature:a.signature})===i}export{u as checkContractWalletSignedTypedData};
