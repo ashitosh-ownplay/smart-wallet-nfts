@@ -41,7 +41,11 @@ export const MessageModal = ({
           </Typography>
         ) : null}
 
-        <Button onClick={onClose} variant="contained" color="secondary">
+        <Button
+          onClick={onClose}
+          variant="contained"
+          sx={{ backgroundColor: "primary.dark" }}
+        >
           OK
         </Button>
       </Stack>

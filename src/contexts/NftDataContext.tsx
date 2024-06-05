@@ -6,36 +6,32 @@ import React, {
   useEffect,
   useState,
 } from "react";
-
 import { Account } from "thirdweb/wallets";
 import {
   chainId,
   chains,
   cityBuildingsNFTAddress,
-  giftPackageNFTAddress,
-  packagesNFTAddress,
   usdcAddress,
 } from "../configs";
-import { ThirdwebContract, getContract } from "thirdweb";
+import {
+  ThirdwebContract,
+  eth_getBalance,
+  getContract,
+  getRpcClient,
+} from "thirdweb";
 import { client } from "../configs/client";
 import { getOwnedNFTs } from "thirdweb/extensions/erc721";
-import { getOwnedNFTs as getERC1155NFts } from "thirdweb/extensions/erc1155";
 
 import { getBalance } from "thirdweb/extensions/erc20";
 import { NFTWithQuantity } from "../components/types";
 
 interface NftDataContextProps {
   cityNfts: NFTWithQuantity[] | undefined;
-  giftPackageNfts: NFTWithQuantity[] | undefined;
-  packageNfts: NFTWithQuantity[] | undefined;
   isCityNftFetching: boolean;
-  isGiftPackageFetching: boolean;
-  isPackageNftFetching: boolean;
   usdcBalance: any;
+  ethBalance: any;
   usdcContract: ThirdwebContract | undefined;
   cityNftContract: ThirdwebContract | undefined;
-  packagesNftContract: ThirdwebContract | undefined;
-  giftPackagesNFTContract: ThirdwebContract | undefined;
   refetchData: () => void;
 }
 
@@ -55,23 +51,13 @@ export const NftDataProvider: React.FC<{
     ThirdwebContract | undefined
   >(undefined);
 
-  const [packagesNftContract, setPackagesNftContract] = useState<
-    ThirdwebContract | undefined
-  >(undefined);
-
-  const [giftPackagesNFTContract, setGiftPackagesNFTContract] = useState<
-    ThirdwebContract | undefined
-  >(undefined);
-
   const [cityNftTokens, setCityNftTokens] = useState<any[]>([]);
-  const [packagesNftTokens, setPackagesNftTokens] = useState<any[]>([]);
-  const [giftPackageNftTokens, setGiftPackageNftTokens] = useState<any[]>([]);
   const [usdcBalance, setUsdcBalance] = useState<any>();
+  const [ethBalance, setEthBalance] = useState<any>();
   const [refetch, setRefetch] = useState<boolean>(false);
+  const [refetchBalances, setRefetchBalances] = useState<boolean>(false);
 
   const [isCityNftFetching, setIsCityNftFetching] = useState<boolean>(false);
-  const [isPackageNftFetching, setIsPackageNftFetching] =
-    useState<boolean>(false);
   const [isGiftPackageFetching, setIsGiftPackageFetching] =
     useState<boolean>(false);
 
@@ -94,24 +80,6 @@ export const NftDataProvider: React.FC<{
   }, []);
 
   useEffect(() => {
-    const contract = getContract({
-      client: client,
-      address: packagesNFTAddress[chainId],
-      chain: chains[chainId],
-    });
-    setPackagesNftContract(contract);
-  }, []);
-
-  useEffect(() => {
-    const contract = getContract({
-      client: client,
-      address: giftPackageNFTAddress[chainId],
-      chain: chains[chainId],
-    });
-    setGiftPackagesNFTContract(contract);
-  }, []);
-
-  useEffect(() => {
     const getOwnedTokens = async () => {
       if (cityNftContract && account?.address) {
         setIsCityNftFetching(true);
@@ -127,36 +95,6 @@ export const NftDataProvider: React.FC<{
   }, [account?.address, cityNftContract, refetch]);
 
   useEffect(() => {
-    const getOwnedTokens = async () => {
-      if (packagesNftContract && account?.address) {
-        setIsPackageNftFetching(true);
-        const ownedNfts = await getERC1155NFts({
-          contract: packagesNftContract,
-          address: account?.address || "",
-        });
-        setPackagesNftTokens(ownedNfts);
-        setIsPackageNftFetching(false);
-      }
-    };
-    getOwnedTokens();
-  }, [account?.address, packagesNftContract]);
-
-  useEffect(() => {
-    const getOwnedTokens = async () => {
-      if (giftPackagesNFTContract && account?.address) {
-        setIsGiftPackageFetching(true);
-        const ownedNfts = await getERC1155NFts({
-          contract: giftPackagesNFTContract,
-          address: account?.address || "",
-        });
-        setGiftPackageNftTokens(ownedNfts);
-        setIsGiftPackageFetching(false);
-      }
-    };
-    getOwnedTokens();
-  }, [account?.address, giftPackagesNFTContract, refetch]);
-
-  useEffect(() => {
     const getUsdcBalance = async () => {
       if (usdcContract && account?.address) {
         setIsGiftPackageFetching(true);
@@ -169,24 +107,43 @@ export const NftDataProvider: React.FC<{
       }
     };
     getUsdcBalance();
-  }, [account?.address, usdcContract, refetch]);
+  }, [account?.address, usdcContract, refetchBalances]);
+
+  useEffect(() => {
+    const getEthBalance = async () => {
+      if (account?.address) {
+        setIsGiftPackageFetching(true);
+
+        const rpcRequest = getRpcClient({ client, chain: chains[chainId] });
+        const balance = await eth_getBalance(rpcRequest, {
+          address: account?.address,
+        });
+        setEthBalance(balance);
+        setIsGiftPackageFetching(false);
+      }
+    };
+    getEthBalance();
+  }, [account?.address, refetchBalances]);
 
   const refetchData = useCallback(() => {
-    setRefetch(true);
+    setRefetch(!refetch);
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      // check for new USDC and ETG balances every ten seconds
+      setRefetchBalances(!refetchBalances);
+    }, 10000);
+  });
 
   const value = {
     cityNfts: cityNftTokens,
-    giftPackageNfts: giftPackageNftTokens,
-    packageNfts: packagesNftTokens,
     isCityNftFetching,
     isGiftPackageFetching,
-    isPackageNftFetching,
     usdcBalance,
+    ethBalance,
     usdcContract,
     cityNftContract,
-    packagesNftContract,
-    giftPackagesNFTContract,
     refetchData,
   };
 
