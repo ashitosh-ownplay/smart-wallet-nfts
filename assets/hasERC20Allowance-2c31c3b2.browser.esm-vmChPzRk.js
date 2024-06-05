@@ -1,0 +1,2 @@
+const __vite__fileDeps=["assets/index-XQkpot5-.js","assets/index-B_SY1GJM.css"],__vite__mapDeps=i=>i.map(i=>__vite__fileDeps[i]);
+import{_ as l,aT as w}from"./index-XQkpot5-.js";async function g(e,a,t){const n=e.getProvider(),r=(await l(()=>import("./index-XQkpot5-.js").then(d=>d.eO),__vite__mapDeps([0,1]))).default,s=new w(n,a,r,{},e.storage),o=await e.getSignerAddress(),i=e.address;return(await s.read("allowance",[o,i])).gte(t)}export{g as h};
