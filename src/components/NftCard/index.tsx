@@ -153,7 +153,11 @@ export const NftCard = ({ nftInfo, contractAddress, account }: INftCard) => {
           )}
 
           {nftInfo.type === "ERC1155" ? null : (
-            <Button variant="contained" onClick={handleTransfer}>
+            <Button
+              variant="contained"
+              onClick={handleTransfer}
+              sx={{ backgroundColor: "primary.dark" }}
+            >
               Transfer
             </Button>
           )}

@@ -18,7 +18,6 @@ import OwnedNfts from "../components/Nfts";
 import { chainId, chains, smartWalletFactory } from "../configs";
 import { client } from "../configs/client";
 import { truncateAddress } from "../utils";
-import { InAppSmartWallet } from "../components/InAppSmartWallet";
 import { InAppWalletPKExtractorButton } from "../components/InAppWalletPKExtractor";
 
 const HomePage = () => {
@@ -28,7 +27,6 @@ const HomePage = () => {
   const [account, setSmartAccount] = useState<Account>();
   const [wallet, setSmartWallet] = useState<Wallet>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [loadingExportPK, setLoadingExportPk] = useState<boolean>(false);
 
   const [openPKModal, setOpenPKModal] = useState<boolean>(false);
 
@@ -71,7 +69,6 @@ const HomePage = () => {
         personalAccount: pkWallet,
         client: client,
       });
-      console.log("smartAccount: ", smartAccount);
 
       setSmartAccount(smartAccount);
       setSmartWallet(wallet);
@@ -105,11 +102,10 @@ const HomePage = () => {
             navigator.clipboard.writeText(account?.address);
           }}
         >
-          <b>Smart Account: </b>
+          <b>In-Game Wallet: </b>
           {isMobile ? truncateAddress(account?.address) : account?.address}
         </Typography>
       ) : null}
-
       {!account?.address ? (
         <>
           <TextField
@@ -133,31 +129,14 @@ const HomePage = () => {
             variant="contained"
             disabled={!privateKey || loading}
             onClick={handleFetchNft}
-            style={{ width: "fit-content", height: "48px" }}
-          >
-            {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            Connect To Smart Wallet
-          </Button>
-          <InAppSmartWallet
-            loading={loadingExportPK}
-            setAccount={setSmartAccount}
-            setWallet={setSmartWallet}
-            setLoading={setLoadingExportPk}
-          />
-        </>
-      ) : (
-        <>
-          <Button
-            variant="contained"
-            onClick={handleDisconnect}
-            style={{
+            sx={{
               width: "fit-content",
               height: "48px",
-              backgroundColor: "red",
+              backgroundColor: "primary.dark",
             }}
           >
-            {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            Disconnect Smart Wallet
+            {loading && <CircularProgress size={20} sx={{ mr: 1 }} />}
+            Connect To In-Game Wallet
           </Button>
           <InAppWalletPKExtractorButton
             setOpen={setOpenPKModal}
@@ -165,9 +144,22 @@ const HomePage = () => {
             onClose={handleInAppPKExtrractModalClose}
           />
         </>
+      ) : (
+        <>
+          <Button
+            variant="contained"
+            onClick={handleDisconnect}
+            sx={{
+              width: "fit-content",
+              height: "48px",
+              backgroundColor: "warning.dark",
+            }}
+          >
+            {loading && <CircularProgress size={20} sx={{ mr: 1 }} />}
+            Disconnect In-Game Wallet
+          </Button>
+        </>
       )}
-
-      {/* <Divider sx={{ width: "100%" }} /> */}
       <OwnedNfts account={account} />
     </Box>
   );

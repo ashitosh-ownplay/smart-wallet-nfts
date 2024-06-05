@@ -1,26 +1,43 @@
 import { ThirdwebProvider } from "@thirdweb-dev/react";
-import "./App.css";
+import {
+  Box,
+  CssBaseline,
+  Snackbar,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import { chainId, thirdWebClientId } from "./configs";
 import HomePage from "./pages/home";
-import { Box, Snackbar, Typography } from "@mui/material";
 import { useSnackbarContext } from "./contexts/snackbarContext";
+import "./App.css";
+import { Footer } from "./components/Footer";
 
 function App() {
   const { toastState, handleCloseToast } = useSnackbarContext();
 
+  const darkTheme = createTheme({
+    palette: {
+      mode: "dark",
+    },
+  });
+
   return (
-    <>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
       <ThirdwebProvider activeChain={chainId} clientId={thirdWebClientId}>
         <Box
           display="flex"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
+          paddingBottom="5rem"
           gap={4}
         >
-          <Typography variant="h3">Ownplay</Typography>
+          <img src="./src/assets/logo.png"></img>
           <HomePage />
         </Box>
+        <Footer />
+
         <Snackbar
           open={toastState.isOpen}
           autoHideDuration={6000}
@@ -29,7 +46,7 @@ function App() {
           action={null}
         />
       </ThirdwebProvider>
-    </>
+    </ThemeProvider>
   );
 }
 

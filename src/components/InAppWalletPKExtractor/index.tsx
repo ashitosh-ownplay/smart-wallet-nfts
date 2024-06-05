@@ -54,7 +54,11 @@ export const InAppWalletPKExtractorButton = ({
       ) : (
         <Button
           variant="contained"
-          style={{ width: "fit-content", height: "48px" }}
+          sx={{
+            backgroundColor: "primary.dark",
+            width: "fit-content",
+            height: "48px",
+          }}
           onClick={openModal}
         >
           Export Private Key

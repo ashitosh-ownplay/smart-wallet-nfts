@@ -13,14 +13,18 @@ import {
 import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import {
   ThirdwebContract,
+  eth_gasPrice,
   getContract,
+  getRpcClient,
   isAddress,
   prepareContractCall,
+  prepareTransaction,
   sendAndConfirmTransaction,
   toUnits,
 } from "thirdweb";
 import { Account } from "thirdweb/wallets";
 import usdc from "../../assets/usdc.svg";
+import eth from "../../assets/eth.svg";
 import { chainId, chains } from "../../configs";
 import { client } from "../../configs/client";
 import { truncateStr } from "../../utils";
@@ -34,6 +38,8 @@ type TransferModalProps = {
   open: boolean;
   contractAddress: string | undefined;
   isERC20TokenTransfer?: boolean;
+  isEthTransfer?: boolean;
+  ethBalance?: number;
   usdcBalance?: any;
   nftImage?: string | undefined;
   nftName?: string | undefined;
@@ -48,6 +54,8 @@ export const TransferModal = ({
   contractAddress,
   isERC20TokenTransfer,
   usdcBalance,
+  isEthTransfer,
+  ethBalance,
   nftImage,
   nftName,
 }: TransferModalProps) => {
@@ -75,8 +83,36 @@ export const TransferModal = ({
 
   const tranferNft = useCallback(async () => {
     try {
-      if (!walletAddress || !account || !contract) return;
       setLoading(true);
+      if (isEthTransfer && account && ethBalance) {
+        const estimatedGas = BigInt("210000");
+        const rpcRequest = getRpcClient({ client, chain: chains[chainId] });
+        const gasPrice = await eth_gasPrice(rpcRequest);
+        console.log(estimatedGas * gasPrice);
+        console.log(BigInt(ethBalance!));
+        console.log(BigInt(ethBalance!) - estimatedGas * gasPrice);
+        if (estimatedGas * gasPrice > BigInt(ethBalance!)) {
+          throw Error("didn't pay prefund");
+        }
+        const transaction = prepareTransaction({
+          to: walletAddress,
+          chain: chains[chainId],
+          client,
+          value: BigInt(ethBalance!) - estimatedGas * gasPrice,
+        });
+
+        const transactionResult = await sendAndConfirmTransaction({
+          transaction,
+          account,
+        });
+
+        if (transactionResult?.status === "success") {
+          setSuccessMessage("You successfully transferred the ETH tokens");
+        }
+        return;
+      }
+      if (!walletAddress || !account || !contract) return;
+
       if (nftInfo?.type === "ERC1155") {
         const transaction = prepareContractCall({
           contract,
@@ -131,6 +167,7 @@ export const TransferModal = ({
         setLoading(false);
         // onClose();
       } else if (isERC20TokenTransfer) {
+        console.log("xxxx");
         const transaction = prepareContractCall({
           contract,
           // Pass the method signature that you want to call
@@ -155,7 +192,7 @@ export const TransferModal = ({
           setSuccessMessage("You successfully transferred the USDC tokens");
         }
         setLoading(false);
-        // onClose();
+        refetchData();
       }
     } catch (error) {
       if (String(error)?.includes("didn't pay prefund")) {
@@ -177,6 +214,9 @@ export const TransferModal = ({
     tokenQuantity,
     usdcBalance?.decimals,
     walletAddress,
+    ethBalance,
+    isEthTransfer,
+    refetchData,
   ]);
   const isValidAddress = useMemo(() => {
     if (!walletAddress) return false;
@@ -210,9 +250,7 @@ export const TransferModal = ({
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          bgcolor="white"
-          // width="100%"
-          // height="100%"
+          bgcolor="#121212"
           borderRadius={2}
           p={4}
           gap={2}
@@ -221,7 +259,9 @@ export const TransferModal = ({
           <Box
             component="img"
             src={
-              isERC20TokenTransfer
+              isEthTransfer
+                ? eth
+                : isERC20TokenTransfer
                 ? usdc
                 : nftImage || nftInfo?.metadata?.image || ""
             }
@@ -337,6 +377,7 @@ export const TransferModal = ({
 
           <Button
             variant="contained"
+            sx={{ backgroundColor: "primary.dark" }}
             disabled={
               loading ||
               !walletAddress ||
@@ -354,7 +395,7 @@ export const TransferModal = ({
             onClick={tranferNft}
             fullWidth
           >
-            {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            {loading && <CircularProgress size={20} sx={{ mr: 1 }} />}
             Transfer
           </Button>
           <Button variant="text" onClick={onClose}>
