@@ -33,7 +33,7 @@ function App() {
           paddingBottom="5rem"
           gap={4}
         >
-          <img src="./src/assets/logo.png"></img>
+          <img src="/logo.png"></img>
           <HomePage />
         </Box>
         <Footer />
