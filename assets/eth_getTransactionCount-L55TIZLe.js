@@ -1,1 +1,0 @@
-import{v as n,e0 as r}from"./index-XQkpot5-.js";async function u(o,e){const t=await o({method:"eth_getTransactionCount",params:[e.address,e.blockNumber?n(e.blockNumber):e.blockTag||"pending"]});return r(t)}export{u as eth_getTransactionCount};
