@@ -33,7 +33,7 @@ jobs:
       - name: Build project
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            yarn run build
+            yarn run build --mode production
           elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             yarn run build --mode development
           fi
