@@ -5,6 +5,10 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => ({
   base:
-    mode === "production" ? "/smart-wallet-nfts/" : "/dev-smart-wallet-nfts/",
+    mode === "production"
+      ? "/smart-wallet-nfts/"
+      : mode === "dev-local"
+      ? "/"
+      : "/dev-smart-wallet-nfts/",
   plugins: [react()],
 }));
