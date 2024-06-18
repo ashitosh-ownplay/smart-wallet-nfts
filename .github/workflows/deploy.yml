@@ -51,6 +51,14 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
 
     steps:
+      - name: Set environment for deployment
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "ENVIRONMENT=PROD" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+            echo "ENVIRONMENT=DEV" >> $GITHUB_ENV
+          fi
+
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:

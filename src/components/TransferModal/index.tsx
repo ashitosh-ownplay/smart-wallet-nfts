@@ -167,7 +167,6 @@ export const TransferModal = ({
         setLoading(false);
         // onClose();
       } else if (isERC20TokenTransfer) {
-        console.log("xxxx");
         const transaction = prepareContractCall({
           contract,
           // Pass the method signature that you want to call
