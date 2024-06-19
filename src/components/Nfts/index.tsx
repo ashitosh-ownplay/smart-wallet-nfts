@@ -92,10 +92,7 @@ const OwnedNftsContent: React.FC<{ account: Account | undefined }> = ({
               {!isMobile && <Typography variant="h6">ETH Balance:</Typography>}
 
               <Typography variant="h6" fontWeight={600}>
-                {ethBalance
-                  ? Number(toEther(ethBalance)).toFixed(6)?.toString()
-                  : 0}{" "}
-                ETH
+                {ethBalance ? toEther(ethBalance) : 0} ETH
               </Typography>
             </Box>
             {/* <Button

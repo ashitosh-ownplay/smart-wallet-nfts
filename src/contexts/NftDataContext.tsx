@@ -18,6 +18,7 @@ import {
   eth_getBalance,
   getContract,
   getRpcClient,
+  toEther,
 } from "thirdweb";
 import { client } from "../configs/client";
 import { getOwnedNFTs } from "thirdweb/extensions/erc721";
@@ -102,6 +103,8 @@ export const NftDataProvider: React.FC<{
           contract: usdcContract,
           address: account?.address || "",
         });
+        console.log("refetched usdc balance: ", balance?.displayValue);
+
         setUsdcBalance(balance);
       }
     };
@@ -115,6 +118,7 @@ export const NftDataProvider: React.FC<{
         const balance = await eth_getBalance(rpcRequest, {
           address: account?.address,
         });
+        console.log("refetched eth balance: ", toEther(balance));
         setEthBalance(balance);
       }
     };
