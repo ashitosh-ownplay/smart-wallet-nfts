@@ -18,6 +18,7 @@ import {
   eth_getBalance,
   getContract,
   getRpcClient,
+  toEther,
 } from "thirdweb";
 import { client } from "../configs/client";
 import { getOwnedNFTs } from "thirdweb/extensions/erc721";
@@ -58,8 +59,6 @@ export const NftDataProvider: React.FC<{
   const [refetchBalances, setRefetchBalances] = useState<boolean>(false);
 
   const [isCityNftFetching, setIsCityNftFetching] = useState<boolean>(false);
-  const [isGiftPackageFetching, setIsGiftPackageFetching] =
-    useState<boolean>(false);
 
   useEffect(() => {
     const contract = getContract({
@@ -97,13 +96,13 @@ export const NftDataProvider: React.FC<{
   useEffect(() => {
     const getUsdcBalance = async () => {
       if (usdcContract && account?.address) {
-        setIsGiftPackageFetching(true);
         const balance = await getBalance({
           contract: usdcContract,
           address: account?.address || "",
         });
+        console.log("refetched usdc balance: ", balance?.displayValue);
+
         setUsdcBalance(balance);
-        setIsGiftPackageFetching(false);
       }
     };
     getUsdcBalance();
@@ -112,14 +111,12 @@ export const NftDataProvider: React.FC<{
   useEffect(() => {
     const getEthBalance = async () => {
       if (account?.address) {
-        setIsGiftPackageFetching(true);
-
         const rpcRequest = getRpcClient({ client, chain: chains[chainId] });
         const balance = await eth_getBalance(rpcRequest, {
           address: account?.address,
         });
+        console.log("refetched eth balance: ", toEther(balance));
         setEthBalance(balance);
-        setIsGiftPackageFetching(false);
       }
     };
     getEthBalance();
@@ -139,7 +136,6 @@ export const NftDataProvider: React.FC<{
   const value = {
     cityNfts: cityNftTokens,
     isCityNftFetching,
-    isGiftPackageFetching,
     usdcBalance,
     ethBalance,
     usdcContract,
