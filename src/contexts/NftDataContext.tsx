@@ -59,9 +59,6 @@ export const NftDataProvider: React.FC<{
   const [refetchBalances, setRefetchBalances] = useState<boolean>(false);
 
   const [isCityNftFetching, setIsCityNftFetching] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isGiftPackageFetching, setIsGiftPackageFetching] =
-    useState<boolean>(false);
 
   useEffect(() => {
     const contract = getContract({
@@ -139,7 +136,6 @@ export const NftDataProvider: React.FC<{
   const value = {
     cityNfts: cityNftTokens,
     isCityNftFetching,
-    isGiftPackageFetching,
     usdcBalance,
     ethBalance,
     usdcContract,
