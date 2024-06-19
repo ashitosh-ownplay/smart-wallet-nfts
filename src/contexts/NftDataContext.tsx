@@ -58,6 +58,7 @@ export const NftDataProvider: React.FC<{
   const [refetchBalances, setRefetchBalances] = useState<boolean>(false);
 
   const [isCityNftFetching, setIsCityNftFetching] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGiftPackageFetching, setIsGiftPackageFetching] =
     useState<boolean>(false);
 
@@ -97,13 +98,11 @@ export const NftDataProvider: React.FC<{
   useEffect(() => {
     const getUsdcBalance = async () => {
       if (usdcContract && account?.address) {
-        setIsGiftPackageFetching(true);
         const balance = await getBalance({
           contract: usdcContract,
           address: account?.address || "",
         });
         setUsdcBalance(balance);
-        setIsGiftPackageFetching(false);
       }
     };
     getUsdcBalance();
@@ -112,14 +111,11 @@ export const NftDataProvider: React.FC<{
   useEffect(() => {
     const getEthBalance = async () => {
       if (account?.address) {
-        setIsGiftPackageFetching(true);
-
         const rpcRequest = getRpcClient({ client, chain: chains[chainId] });
         const balance = await eth_getBalance(rpcRequest, {
           address: account?.address,
         });
         setEthBalance(balance);
-        setIsGiftPackageFetching(false);
       }
     };
     getEthBalance();

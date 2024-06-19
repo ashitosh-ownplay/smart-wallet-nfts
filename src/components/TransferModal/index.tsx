@@ -361,13 +361,13 @@ export const TransferModal = ({
               }}
               error={
                 usdcBalance?.value && tokenAmount
-                  ? BigInt(String(tokenAmount)) > usdcBalance?.value
+                  ? Number(tokenAmount) > Number(usdcBalance?.displayValue)
                   : false
               }
               helperText={
                 usdcBalance &&
                 tokenAmount &&
-                BigInt(String(tokenAmount)) > usdcBalance?.value
+                Number(tokenAmount) > Number(usdcBalance?.displayValue)
                   ? "Token amount exceeds balance"
                   : ""
               }
@@ -385,7 +385,7 @@ export const TransferModal = ({
                 ? Number(tokenAmount) == 0 ||
                   tokenAmount == undefined ||
                   (usdcBalance?.value && tokenAmount
-                    ? BigInt(String(tokenAmount)) > usdcBalance?.value
+                    ? Number(tokenAmount) > Number(usdcBalance?.displayValue)
                     : true)
                 : nftInfo?.type === "ERC1155"
                 ? tokenQuantity == 0
