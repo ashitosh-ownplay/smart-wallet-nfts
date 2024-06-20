@@ -351,7 +351,7 @@ export const TransferModal = ({
               value={tokenAmount}
               variant="outlined"
               placeholder="Enter Amount"
-              type="number"
+              type="text"
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 if (/^\d*\.?\d{0,4}$/.test(e.target.value)) {
                   setTokenAmount(e.target.value);
