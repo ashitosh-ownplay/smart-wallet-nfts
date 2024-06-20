@@ -353,10 +353,16 @@ export const TransferModal = ({
               placeholder="Enter Amount"
               type="number"
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setTokenAmount(e.target.value.replace(/^0+/, ""));
+                if (/^\d*\.?\d{0,4}$/.test(e.target.value)) {
+                  setTokenAmount(e.target.value);
+                }
               }}
               InputProps={{
-                inputProps: { min: 0 },
+                inputProps: {
+                  min: -0,
+                  inputMode: "decimal",
+                  pattern: "\\d*\\.?\\d{0,4}",
+                },
                 endAdornment: <Avatar src={usdc} alt="usdc" />,
               }}
               error={
