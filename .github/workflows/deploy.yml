@@ -29,7 +29,7 @@ jobs:
             echo "VITE_CHAIN_ID=${{ secrets.VITE_CHAIN_ID_DEV }}" >> .env
           fi
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "VITE_TW_CLIENT_ID_PROD=${{ secrets.VITE_TW_CLIENT_ID_PROD }}" >> .env
+            echo "VITE_TW_CLIENT_ID=${{ secrets.VITE_TW_CLIENT_ID_PROD }}" >> .env
           elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             echo "VITE_TW_CLIENT_ID=${{ secrets.VITE_TW_CLIENT_ID }}" >> .env
           fi
