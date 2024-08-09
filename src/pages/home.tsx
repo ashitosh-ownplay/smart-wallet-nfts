@@ -1,24 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Box,
-  Button,
-  CircularProgress,
-  TextField,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import { ChangeEvent, useCallback, useState } from "react";
-import {
-  Account,
-  Wallet,
-  privateKeyToAccount,
-  smartWallet,
-} from "thirdweb/wallets";
+import { Box, Button, CircularProgress, Stack, TextField, Typography, useMediaQuery } from "@mui/material";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { Account, Wallet, privateKeyToAccount, smartWallet } from "thirdweb/wallets";
 import OwnedNfts from "../components/Nfts";
 import { chainId, chains, smartWalletFactory } from "../configs";
 import { client } from "../configs/client";
 import { truncateAddress } from "../utils";
 import { InAppWalletPKExtractorButton } from "../components/InAppWalletPKExtractor";
+import { ConnectWalletButton } from "../components/ConnectButton";
+import { useActiveAccount, useActiveWallet } from "thirdweb/react";
 
 const HomePage = () => {
   const [privateKey, setPrivateKey] = useState<string>();
@@ -29,6 +19,9 @@ const HomePage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [openPKModal, setOpenPKModal] = useState<boolean>(false);
+
+  const activeWallet = useActiveWallet();
+  const activeAccount = useActiveAccount();
 
   const isMobile = useMediaQuery("(max-width:600px)");
 
@@ -49,6 +42,20 @@ const HomePage = () => {
       handleFetchNft();
     }
   };
+
+  useEffect(() => {
+    if (activeAccount) {
+      setSmartAccount(activeAccount);
+    } else if (!privateKey) {
+      handleDisconnect();
+    }
+
+    if (activeWallet) {
+      setSmartWallet(activeWallet);
+    } else if (!privateKey) {
+      handleDisconnect();
+    }
+  }, [activeAccount, activeWallet, handleDisconnect, privateKey]);
 
   const handleFetchNft = useCallback(async () => {
     try {
@@ -138,27 +145,32 @@ const HomePage = () => {
             {loading && <CircularProgress size={20} sx={{ mr: 1 }} />}
             Connect To In-Game Wallet
           </Button>
-          <InAppWalletPKExtractorButton
-            setOpen={setOpenPKModal}
-            open={openPKModal}
-            onClose={handleInAppPKExtrractModalClose}
-          />
+
+          <Stack direction="row" spacing={2}>
+            <InAppWalletPKExtractorButton
+              setOpen={setOpenPKModal}
+              open={openPKModal}
+              onClose={handleInAppPKExtrractModalClose}
+            />
+            <ConnectWalletButton />
+          </Stack>
         </>
       ) : (
-        <>
+        <Stack direction={"row"} spacing={2} alignItems="center">
           <Button
             variant="contained"
             onClick={handleDisconnect}
             sx={{
               width: "fit-content",
-              height: "48px",
+              height: "54px",
               backgroundColor: "warning.dark",
             }}
           >
             {loading && <CircularProgress size={20} sx={{ mr: 1 }} />}
             Disconnect In-Game Wallet
           </Button>
-        </>
+          {activeWallet ? <ConnectWalletButton /> : null}
+        </Stack>
       )}
       <OwnedNfts account={account} />
     </Box>
