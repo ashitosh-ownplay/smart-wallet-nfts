@@ -1,18 +1,12 @@
-import { ThirdwebProvider } from "@thirdweb-dev/react";
-import {
-  Box,
-  CssBaseline,
-  Snackbar,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
-import { chainId, thirdWebClientId } from "./configs";
+import { Box, CssBaseline, Snackbar, ThemeProvider, createTheme } from "@mui/material";
+import { chainId } from "./configs";
 import HomePage from "./pages/home";
 import { useSnackbarContext } from "./contexts/snackbarContext";
 import "./App.css";
 import { Footer } from "./components/Footer";
 import { base, sepolia } from "thirdweb/chains";
 import { useState } from "react";
+import { ThirdwebProvider } from "thirdweb/react";
 
 function App() {
   const { toastState, handleCloseToast } = useSnackbarContext();
@@ -35,7 +29,7 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <ThirdwebProvider activeChain={chainId} clientId={thirdWebClientId}>
+      <ThirdwebProvider>
         <Box
           display="flex"
           flexDirection="column"

@@ -19,11 +19,7 @@ type InAppWalletPKExtractorButtonProps = {
   onClose: () => void;
 };
 
-export const InAppWalletPKExtractorButton = ({
-  open,
-  setOpen,
-  onClose,
-}: InAppWalletPKExtractorButtonProps) => {
+export const InAppWalletPKExtractorButton = ({ open, setOpen, onClose }: InAppWalletPKExtractorButtonProps) => {
   const openModal = () => {
     setOpen(true);
   };

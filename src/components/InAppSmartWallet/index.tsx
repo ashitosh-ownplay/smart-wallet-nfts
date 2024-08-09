@@ -13,12 +13,7 @@ type InAppSmartWalletProps = {
   setAccount: (account: Account) => void;
   setLoading: (isLoading: boolean) => void;
 };
-export function InAppSmartWallet({
-  loading,
-  setWallet,
-  setAccount,
-  setLoading,
-}: InAppSmartWalletProps) {
+export function InAppSmartWallet({ loading, setWallet, setAccount, setLoading }: InAppSmartWalletProps) {
   async function connectToInAppWallet() {
     setLoading(true);
     try {
