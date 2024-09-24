@@ -35,7 +35,7 @@ export const cityBuildingsNFTAddress: Record<string, string> = {
   sepolia: "0xbe2290df49503844B851Fb31694fD546b2667dD3", // non-burnable
   // "sepolia": "0xf688b7201f29953A6828D3834Bd7164Dfd051f28", // burnable city buildings
   arbitrumNova: "0x56D2b86dB9c8aa3fFFE5d4f9e54a51b31C975277", // Dummy for now ...
-  base: "0xBE27f83D6d9116C9bd0C610054b306d2A1f33D2f", // Dummy for now ...
+  base: "0x685f63D7137eabf05A6EBA528F25D850f1Eca496", // "0xBE27f83D6d9116C9bd0C610054b306d2A1f33D2f",
   baseSepolia: "0xFfdd56faC3A5A87b574b1E9ed0F826879811d7D3",
 };
 
@@ -43,7 +43,7 @@ export const packagesNFTAddress: Record<string, string> = {
   polgonAmoy: "",
   sepolia: "0x9506D39EDd348314E6Ad8665a54e50cd660D35f3",
   arbitrumNova: "0xb8043620Ef662995b5bcBB6E5c39162642304894", // Dummy for now ...
-  base: "0xeB85a0c71F935aCB22b5CcD7BBD7912AaaA8b0a9", // Dummt for now
+  base: "0x020FA69b70C0DF82A0BEf5f8f652e746E68079ed", // "0xeB85a0c71F935aCB22b5CcD7BBD7912AaaA8b0a9",
   baseSepolia: "0x77Fc0BDE9a8380602F3Da53c2E43367237B1f6EE",
 };
 
@@ -51,7 +51,7 @@ export const giftPackageNFTAddress: Record<string, string> = {
   polgonAmoy: "",
   sepolia: "0xc215dDc236826132F360A1f4CED208aDD526c8c8",
   arbitrumNova: "",
-  base: "0x02159c5C8FB954B2932CAA04fE5B946861333746", // Dummy for now
+  base: "0x6cbaD21F63566741c80aBB0c1ff1C36B95498677", // "0x02159c5C8FB954B2932CAA04fE5B946861333746", // Dummy for now
   baseSepolia: "0x15a1fa39a4A24940625052aAcb1A0617B4AEbA86",
 };
 
